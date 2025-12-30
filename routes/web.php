@@ -3,57 +3,67 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PetugasController;
+use App\Http\Controllers\MasyarakatController;
 
-// Halaman Depan (Bisa diakses siapa saja)
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
+
+// 1. Halaman Depan
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Group untuk User yang SUDAH LOGIN
+// 2. Group Auth (Harus Login Dulu)
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // --- DASHBOARD UMUM (Redirect sesuai role) ---
+    // --- DASHBOARD REDIRECT ---
     Route::get('/dashboard', function () {
         $role = auth()->user()->role;
+
         if ($role === 'masyarakat') {
             return redirect()->route('masyarakat.index');
         } elseif ($role === 'petugas') {
             return redirect()->route('petugas.index');
         } else {
-            return view('dashboard'); // Default untuk Kepala/Lainnya
+            // Default jika role lain (misal: kepala)
+            return view('dashboard');
         }
     })->name('dashboard');
 
-    // --- AREA MASYARAKAT ---
-    Route::middleware(['role:masyarakat'])->prefix('masyarakat')->name('masyarakat.')->group(function () {
-        // Nanti kita buat Controllernya
-        Route::get('/', function () {
-            return "Halaman Masyarakat (Permohonan)";
-        })->name('index');
+    // --- RUTE MASYARAKAT ---
+    Route::middleware(['auth', 'role:masyarakat'])->prefix('masyarakat')->name('masyarakat.')->group(function () {
+
+        // Halaman Utama (Form Input)
+        Route::get('/', [MasyarakatController::class, 'index'])->name('index');
+        Route::post('/', [MasyarakatController::class, 'store'])->name('store');
+        Route::get('/tiket/{id}', [MasyarakatController::class, 'show'])->name('show');
+
+        // === TAMBAHKAN BARIS INI ===
+        Route::get('/riwayat', [MasyarakatController::class, 'riwayat'])->name('riwayat');
     });
 
-    // --- AREA PETUGAS ---
-    // --- AREA PETUGAS ---
-    Route::middleware(['role:petugas'])->prefix('petugas')->name('petugas.')->group(function () {
-
-        // Dashboard (Daftar Menunggu)
+    // --- RUTE PETUGAS ---
+    Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')->group(function () {
         Route::get('/', [PetugasController::class, 'index'])->name('index');
+        Route::get('/gate', [PetugasController::class, 'gate'])->name('gate'); // HALAMAN GATE
+        Route::get('/cek-qr', [PetugasController::class, 'checkQr'])->name('checkQr'); // API SCANNER
 
-        // Aksi Update Status (Terima/Tolak)
-        Route::patch('/{id}/update', [PetugasController::class, 'updateStatus'])->name('update.status');
-
-        // Halaman Riwayat
         Route::get('/riwayat', [PetugasController::class, 'riwayat'])->name('riwayat');
+        Route::patch('/verifikasi/{id}', [PetugasController::class, 'updateStatus'])->name('updateStatus');
+        Route::get('/laporan', [PetugasController::class, 'laporan'])->name('laporan');
     });
 
-    // --- AREA KEPALA ---
+    // --- RUTE KEPALA ---
     Route::middleware(['role:kepala'])->prefix('kepala')->name('kepala.')->group(function () {
         Route::get('/', function () {
-            return "Halaman Kepala (Laporan)";
+            return "Halaman Laporan Kepala";
         })->name('index');
     });
 
-    // Profile Bawaan Breeze
+    // --- PROFILE USER ---
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

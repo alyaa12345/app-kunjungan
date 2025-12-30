@@ -31,7 +31,7 @@ return new class extends Migration
 
             // --- BAGIAN 3: DETAIL KUNJUNGAN (4 Field) ---
             $table->date('tanggal_kunjungan');
-            $table->time('jam_kunjungan'); // Sesi pagi/siang
+            $table->string('jam_kunjungan'); // <--- Ubah jadi string (teks)
             $table->text('keperluan');
             $table->integer('jumlah_pengikut')->default(1);
 
