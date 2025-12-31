@@ -95,35 +95,67 @@ class PetugasController extends Controller
     // ====================================================
     // 5. LAPORAN STATISTIK (EKSEKUTIF)
     // ====================================================
-    public function laporan()
+    public function laporan(Request $request)
     {
-        // A. Statistik Kartu Atas
-        $totalTotal     = Kunjungan::count();
-        $totalDisetujui = Kunjungan::where('status', 'disetujui')->count();
-        $totalDitolak   = Kunjungan::where('status', 'ditolak')->count();
+        // 1. QUERY DASAR (Query Builder agar bisa difilter)
+        $query = Kunjungan::query();
 
-        // B. Grafik/Tabel Harian (7 Hari Terakhir)
-        // Query ini mengelompokkan data berdasarkan tanggal untuk grafik
+        // 2. LOGIKA FILTER (Harian, Bulanan, Tahunan)
+        $title = "Semua Arsip Data"; // Judul Default
+
+        if ($request->filled('filter_type')) {
+            switch ($request->filter_type) {
+                case 'harian':
+                    $request->validate(['tanggal' => 'required|date']);
+                    $query->whereDate('tanggal_kunjungan', $request->tanggal);
+                    $title = "Laporan Harian: " . Carbon::parse($request->tanggal)->translatedFormat('d F Y');
+                    break;
+
+                case 'mingguan':
+                    $request->validate(['start_date' => 'required|date', 'end_date' => 'required|date']);
+                    $query->whereBetween('tanggal_kunjungan', [$request->start_date, $request->end_date]);
+                    $title = "Laporan Periode: " . Carbon::parse($request->start_date)->format('d/m/y') . " - " . Carbon::parse($request->end_date)->format('d/m/y');
+                    break;
+
+                case 'bulanan':
+                    $request->validate(['bulan' => 'required', 'tahun' => 'required']);
+                    $query->whereMonth('tanggal_kunjungan', $request->bulan)
+                        ->whereYear('tanggal_kunjungan', $request->tahun);
+                    $title = "Laporan Bulanan: " . Carbon::create()->month($request->bulan)->translatedFormat('F') . " " . $request->tahun;
+                    break;
+
+                case 'tahunan':
+                    $request->validate(['tahun' => 'required']);
+                    $query->whereYear('tanggal_kunjungan', $request->tahun);
+                    $title = "Laporan Tahunan: " . $request->tahun;
+                    break;
+            }
+        }
+
+        // 3. EKSEKUSI DATA (Untuk Tabel Register)
+        $laporan_detail = $query->orderBy('tanggal_kunjungan', 'desc')->get();
+
+        // 4. STATISTIK (Tetap hitung statistik global atau bisa difilter juga, disini kita filter global biar dashboard tetap jalan)
+        // Opsional: Jika ingin statistik kartu di atas ikut berubah sesuai filter, ganti Kunjungan::count() dengan $laporan_detail->count() dst.
+        // Di sini saya buat statistik mengikuti filter agar konsisten.
+        $totalTotal     = $laporan_detail->count();
+        $totalDisetujui = $laporan_detail->where('status', 'disetujui')->count();
+        $totalDitolak   = $laporan_detail->where('status', 'ditolak')->count();
+
+        // Data Grafik (Tetap default 7 hari terakhir & tahun ini agar grafik tidak rusak)
         $harian = Kunjungan::select(DB::raw('DATE(created_at) as tanggal'), DB::raw('count(*) as total'))
-            ->groupBy('tanggal')
-            ->orderBy('tanggal', 'desc')
-            ->limit(7)
-            ->get();
-
-        // C. Tabel Bulanan (Tahun Ini)
-        // Query ini mengelompokkan data berdasarkan bulan
+            ->groupBy('tanggal')->orderBy('tanggal', 'desc')->limit(7)->get();
         $bulanan = Kunjungan::select(DB::raw('MONTH(created_at) as bulan'), DB::raw('count(*) as total'))
-            ->whereYear('created_at', date('Y'))
-            ->groupBy('bulan')
-            ->orderBy('bulan', 'asc')
-            ->get();
+            ->whereYear('created_at', date('Y'))->groupBy('bulan')->orderBy('bulan', 'asc')->get();
 
         return view('petugas.laporan', compact(
             'totalTotal',
             'totalDisetujui',
             'totalDitolak',
             'harian',
-            'bulanan'
+            'bulanan',
+            'laporan_detail',
+            'title'
         ));
     }
 }
