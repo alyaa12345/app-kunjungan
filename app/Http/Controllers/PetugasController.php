@@ -4,99 +4,126 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Kunjungan;
-use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB; // Wajib ada untuk Laporan Statistik
 
 class PetugasController extends Controller
 {
-    // 1. Dashboard (Tabel Verifikasi)
+    // ====================================================
+    // 1. DASHBOARD UTAMA (MEJA VERIFIKASI)
+    // ====================================================
     public function index()
     {
-        // Menampilkan data yang statusnya 'menunggu' untuk diverifikasi admin
+        // Ambil hanya yang statusnya 'menunggu' untuk diverifikasi
         $kunjungans = Kunjungan::where('status', 'menunggu')
-            ->orderBy('created_at', 'asc')
+            ->orderBy('created_at', 'asc') // Urutkan dari yang paling lama menunggu
             ->get();
 
         return view('petugas.index', compact('kunjungans'));
     }
 
-    // 2. Halaman Gate (Scanner Satpam) - BARU
-    public function gate()
-    {
-        return view('petugas.gate');
-    }
-
-    // 3. Cek QR (API untuk Scanner)
-    public function checkQr(Request $request)
-    {
-        $code = $request->code;
-        $id = preg_replace('/[^0-9]/', '', $code); // Ambil angka saja
-
-        $data = Kunjungan::find($id);
-
-        if (!$data) {
-            return response()->json(['status' => 'not_found']);
-        }
-
-        return response()->json([
-            'status' => 'found',
-            'data' => [
-                'nama_pengunjung' => $data->nama_pengunjung,
-                'jumlah_pengikut' => $data->jumlah_pengikut,
-                'nama_tahanan' => $data->nama_tahanan,
-                'kamar' => $data->nomor_kamar,
-                'tanggal' => \Carbon\Carbon::parse($data->tanggal_kunjungan)->translatedFormat('d F Y'),
-                'jam' => $data->jam_kunjungan,
-                'status_kunjungan' => $data->status,
-                'foto' => $data->foto_ktp ? asset('storage/' . $data->foto_ktp) : null
-            ]
-        ]);
-    }
-
-    // 4. Update Status (Tombol Terima/Tolak)
+    // ====================================================
+    // 2. PROSES VERIFIKASI (UPDATE STATUS)
+    // ====================================================
     public function updateStatus(Request $request, $id)
     {
+        // Validasi input sederhana
         $request->validate([
             'status' => 'required|in:disetujui,ditolak',
             'keterangan_petugas' => 'nullable|string'
         ]);
 
         $kunjungan = Kunjungan::findOrFail($id);
-        $kunjungan->status = $request->status;
 
-        if ($request->has('keterangan_petugas')) {
-            $kunjungan->keterangan_petugas = $request->keterangan_petugas;
-        }
-
-        $kunjungan->save();
+        $kunjungan->update([
+            'status'             => $request->status,
+            'keterangan_petugas' => $request->keterangan_petugas
+        ]);
 
         return back()->with('success', 'Status kunjungan berhasil diperbarui!');
     }
 
-    // 5. Arsip Riwayat
+    // ====================================================
+    // 3. HALAMAN RIWAYAT (ARSIP DATA)
+    // ====================================================
     public function riwayat()
     {
-        $kunjungans = Kunjungan::whereIn('status', ['disetujui', 'ditolak'])
-            ->orderBy('updated_at', 'desc')
+        // Ambil data yang statusnya SUDAH DIPROSES (Disetujui/Ditolak)
+        $riwayat = Kunjungan::whereIn('status', ['disetujui', 'ditolak'])
+            ->latest() // Urutkan dari yang terbaru
             ->get();
-        return view('petugas.riwayat', compact('kunjungans'));
+
+        return view('petugas.riwayat', compact('riwayat'));
     }
 
-    // 6. Laporan
+    // ====================================================
+    // 4. GATE CHECK (SCANNER PINTU UTAMA)
+    // ====================================================
+    public function gateCheck(Request $request)
+    {
+        $visitor = null;
+        $message = null;
+
+        // Jika ada input 'tiket_id' (dari Scanner atau Ketik Manual)
+        if ($request->has('tiket_id')) {
+
+            // Bersihkan input agar hanya angka (jika scanner mengirim REQ-123, ambil 123-nya saja)
+            // Opsional: Jika input anda murni angka ID, baris preg_replace bisa dihapus.
+            $cleanId = preg_replace('/[^0-9]/', '', $request->tiket_id);
+
+            // Cari data berdasarkan ID dan Status HARUS Disetujui
+            $visitor = Kunjungan::where('id', $cleanId)
+                ->where('status', 'disetujui')
+                ->first();
+
+            // Jika tidak ditemukan
+            if (!$visitor) {
+                // Cek apakah ada datanya tapi statusnya belum disetujui/ditolak
+                $cekStatus = Kunjungan::find($cleanId);
+                if ($cekStatus) {
+                    $message = "Tiket ditemukan tetapi statusnya: " . strtoupper($cekStatus->status) . " (Belum Disetujui).";
+                } else {
+                    $message = "Tiket ID #" . $cleanId . " tidak ditemukan dalam sistem.";
+                }
+            }
+        }
+
+        // Return ke view 'petugas.gate' dengan membawa data visitor (jika ada) dan pesan (jika error)
+        return view('petugas.gate', compact('visitor', 'message'));
+    }
+
+    // ====================================================
+    // 5. LAPORAN STATISTIK (EKSEKUTIF)
+    // ====================================================
     public function laporan()
     {
-        $totalTotal = Kunjungan::count();
+        // A. Statistik Kartu Atas
+        $totalTotal     = Kunjungan::count();
         $totalDisetujui = Kunjungan::where('status', 'disetujui')->count();
-        $totalDitolak = Kunjungan::where('status', 'ditolak')->count();
+        $totalDitolak   = Kunjungan::where('status', 'ditolak')->count();
 
-        $harian = Kunjungan::selectRaw('DATE(tanggal_kunjungan) as tanggal, count(*) as total')
-            ->groupBy('tanggal')->orderBy('tanggal', 'desc')->limit(7)->get();
+        // B. Grafik/Tabel Harian (7 Hari Terakhir)
+        // Query ini mengelompokkan data berdasarkan tanggal untuk grafik
+        $harian = Kunjungan::select(DB::raw('DATE(created_at) as tanggal'), DB::raw('count(*) as total'))
+            ->groupBy('tanggal')
+            ->orderBy('tanggal', 'desc')
+            ->limit(7)
+            ->get();
 
-        $bulanan = Kunjungan::selectRaw('MONTH(tanggal_kunjungan) as bulan, count(*) as total')
-            ->whereYear('tanggal_kunjungan', date('Y'))->groupBy('bulan')->orderBy('bulan', 'asc')->get();
+        // C. Tabel Bulanan (Tahun Ini)
+        // Query ini mengelompokkan data berdasarkan bulan
+        $bulanan = Kunjungan::select(DB::raw('MONTH(created_at) as bulan'), DB::raw('count(*) as total'))
+            ->whereYear('created_at', date('Y'))
+            ->groupBy('bulan')
+            ->orderBy('bulan', 'asc')
+            ->get();
 
-        $tahunan = Kunjungan::selectRaw('YEAR(tanggal_kunjungan) as tahun, count(*) as total')
-            ->groupBy('tahun')->orderBy('tahun', 'desc')->get();
-
-        return view('petugas.laporan', compact('totalTotal', 'totalDisetujui', 'totalDitolak', 'harian', 'bulanan', 'tahunan'));
+        return view('petugas.laporan', compact(
+            'totalTotal',
+            'totalDisetujui',
+            'totalDitolak',
+            'harian',
+            'bulanan'
+        ));
     }
 }

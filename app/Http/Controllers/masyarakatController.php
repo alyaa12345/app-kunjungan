@@ -9,16 +9,17 @@ use Illuminate\Support\Facades\Storage;
 
 class MasyarakatController extends Controller
 {
+    // 1. Dashboard Utama Masyarakat
     public function index()
     {
         $userId = Auth::id();
 
-        // 1. Ambil Data Kunjungan
+        // Ambil Data Kunjungan milik user yang login
         $kunjungans = Kunjungan::where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // 2. Hitung Statistik untuk Card Dashboard
+        // Hitung Statistik untuk Card Dashboard
         $statistik = [
             'total'     => $kunjungans->count(),
             'menunggu'  => $kunjungans->where('status', 'menunggu')->count(),
@@ -26,38 +27,34 @@ class MasyarakatController extends Controller
             'ditolak'   => $kunjungans->where('status', 'ditolak')->count(),
         ];
 
-        return view('warga.index', compact('kunjungans', 'statistik'));
+        // Pastikan folder view Anda bernama 'masyarakat' atau 'masyarakat', sesuaikan di sini
+        return view('masyarakat.index', compact('kunjungans', 'statistik'));
     }
 
     // 2. Halaman Formulir Pengajuan (Create)
     public function create()
     {
-        return view('warga.create');
+        return view('masyarakat.create');
     }
 
-    // 3. Proses Simpan Data ke Database (Store)
+    // 3. Proses Simpan Data (Store)
     public function store(Request $request)
     {
-        // Validasi Input (Memastikan semua 7+ kolom terisi)
+        // Validasi Input
         $request->validate([
-            // Identitas Pengunjung
-            'nama_pengunjung' => 'required|string|max:255',
-            'nik_pengunjung' => 'required|numeric|digits:16',
-            'jenis_kelamin' => 'required',
+            'nama_pengunjung'   => 'required|string|max:255',
+            'nik_pengunjung'    => 'required|numeric|digits:16',
+            'jenis_kelamin'     => 'required',
             'alamat_pengunjung' => 'required|string',
-            'hubungan_tahanan' => 'required|string',
-
-            // Data Tahanan
-            'nama_tahanan' => 'required|string',
-            'nomor_kamar' => 'required|string',
-            'kasus_tahanan' => 'required|string',
-
-            // Detail Kunjungan
+            'hubungan_tahanan'  => 'required|string',
+            'nama_tahanan'      => 'required|string',
+            'nomor_kamar'       => 'required|string',
+            'kasus_tahanan'     => 'required|string',
             'tanggal_kunjungan' => 'required|date|after_or_equal:today',
-            'jam_kunjungan' => 'required',
-            'keperluan' => 'required|string',
-            'jumlah_pengikut' => 'required|integer|min:0|max:5',
-            'foto_ktp' => 'required|image|mimes:jpeg,png,jpg|max:2048', // Max 2MB
+            'jam_kunjungan'     => 'required',
+            'keperluan'         => 'required|string',
+            'jumlah_pengikut'   => 'required|integer|min:0|max:5',
+            'foto_ktp'          => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         // Proses Upload File KTP
@@ -66,50 +63,58 @@ class MasyarakatController extends Controller
             $pathKtp = $request->file('foto_ktp')->store('ktp_uploads', 'public');
         }
 
-        // Simpan Data
+        // Simpan Data ke Database
         Kunjungan::create([
-            'user_id' => Auth::id(), // ID User yang login otomatis tersimpan
-            'nama_pengunjung' => $request->nama_pengunjung,
-            'nik_pengunjung' => $request->nik_pengunjung,
-            'jenis_kelamin' => $request->jenis_kelamin,
+            'user_id'           => Auth::id(),
+            'nama_pengunjung'   => $request->nama_pengunjung,
+            'nik_pengunjung'    => $request->nik_pengunjung,
+            'jenis_kelamin'     => $request->jenis_kelamin,
             'alamat_pengunjung' => $request->alamat_pengunjung,
-            'hubungan_tahanan' => $request->hubungan_tahanan,
-            'nama_tahanan' => $request->nama_tahanan,
-            'nomor_kamar' => $request->nomor_kamar,
-            'kasus_tahanan' => $request->kasus_tahanan,
+            'hubungan_tahanan'  => $request->hubungan_tahanan,
+            'nama_tahanan'      => $request->nama_tahanan,
+            'nomor_kamar'       => $request->nomor_kamar,
+            'kasus_tahanan'     => $request->kasus_tahanan,
             'tanggal_kunjungan' => $request->tanggal_kunjungan,
-            'jam_kunjungan' => $request->jam_kunjungan,
-            'keperluan' => $request->keperluan,
-            'jumlah_pengikut' => $request->jumlah_pengikut,
-            'foto_ktp' => $pathKtp,
-            'status' => 'menunggu', // Default status saat baru submit
+            'jam_kunjungan'     => $request->jam_kunjungan,
+            'keperluan'         => $request->keperluan,
+            'jumlah_pengikut'   => $request->jumlah_pengikut,
+            'foto_ktp'          => $pathKtp,
+            'status'            => 'menunggu',
         ]);
 
-
-        return redirect()->route('masyarakat.index')->with('success', 'Permohonan kunjungan berhasil dikirim! Silakan tunggu verifikasi.');
+        return redirect()->route('masyarakat.index')->with('success', 'Permohonan kunjungan berhasil dikirim!');
     }
 
-    // 4. Halaman Detail & Status Balasan
+    // 4. Halaman Detail Kunjungan (Tiket)
     public function show($id)
     {
-        // Cari data berdasarkan ID dan pastikan milik user yang sedang login (agar aman)
         $kunjungan = Kunjungan::where('id', $id)
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        return view('warga.show', compact('kunjungan'));
+        return view('masyarakat.show', compact('kunjungan'));
     }
-    // 5. Halaman Pusat Laporan (Dinamis)
+
+    // 5. Halaman Riwayat Kunjungan
+    public function riwayat()
+    {
+        $kunjungans = Kunjungan::where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Pastikan view ini ada di folder resources/views/masyarakat/riwayat.blade.php
+        return view('masyarakat.riwayat', compact('kunjungans'));
+    }
+
+    // 6. Halaman Laporan Dinamis
     public function laporan($jenis)
     {
         $userId = Auth::id();
         $query = Kunjungan::where('user_id', $userId)->orderBy('created_at', 'desc');
 
-        // Siapkan data dasar
         $data = $query->get();
         $judul = '';
 
-        // Logika Judul & Filter Data
         switch ($jenis) {
             case 'statistik':
                 $judul = 'Laporan Statistik Ringkasan';
@@ -130,20 +135,6 @@ class MasyarakatController extends Controller
                 abort(404);
         }
 
-        return view('warga.laporan', compact('data', 'jenis', 'judul'));
+        return view('masyarakat.laporan', compact('data', 'jenis', 'judul'));
     }
-    // ... fungsi index, store, show sebelumnya ...
-
-    // FUNGSI RIWAYAT SAYA (BARU)
-    public function riwayat()
-    {
-        // Ambil data kunjungan milik user yang sedang login saja
-        // Urutkan dari yang terbaru
-        $kunjungans = Kunjungan::where('user_id', Auth::id())
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return view('masyarakat.riwayat', compact('kunjungans'));
-    }
-}
 }

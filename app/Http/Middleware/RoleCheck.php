@@ -4,27 +4,28 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class RoleCheck
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, ...$roles): Response
+    public function handle(Request $request, Closure $next, $role)
     {
-        // Ambil user yang sedang login
-        $user = $request->user();
+        // 1. Cek apakah user sudah login? Jika belum, suruh login.
+        if (!Auth::check()) {
+            return redirect('/login');
+        }
 
-        // Cek apakah role user ada di dalam daftar role yang diizinkan
-        // Contoh penggunaan di route: 'role:petugas,kepala'
-        if (in_array($user->role, $roles)) {
+        // 2. LOGIKA UTAMA:
+        // Bandingkan Role di Database dengan Role yang diminta Halaman
+        // Contoh: Jika Database='kepala' DAN Halaman butuh='kepala' -> BOLEH MASUK.
+        if (Auth::user()->role == $role) {
             return $next($request);
         }
 
-        // Jika role tidak cocok, lempar ke halaman 403 (Forbidden) atau redirect
-        abort(403, 'Anda tidak memiliki akses ke halaman ini.');
+        // 3. Jika tidak cocok, tendang keluar.
+        return abort(403, 'Akses Ditolak! Halaman ini khusus untuk: ' . $role);
     }
 }

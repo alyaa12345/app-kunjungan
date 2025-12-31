@@ -1,107 +1,78 @@
 <x-app-layout>
-    <div class="min-h-screen bg-[#F1F5F9] pb-20">
+    <div class="min-h-screen bg-[#F1F5F9] pb-20 font-sans">
 
-        <div class="bg-white border-b border-gray-200 py-8 px-6 shadow-sm">
-            <div class="max-w-7xl mx-auto flex justify-between items-center">
-                <h1 class="text-2xl font-bold text-[#0f172a] font-serif">Arsip Digital Kunjungan</h1>
-                <button onclick="window.print()" class="px-4 py-2 bg-slate-100 border border-slate-300 rounded text-slate-700 text-sm font-bold hover:bg-slate-200">
-                    Cetak Halaman
-                </button>
+        <div class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Arsip Riwayat</h1>
+                    <p class="text-sm text-slate-500">Data kunjungan yang telah selesai diproses.</p>
+                </div>
+                <a href="{{ route('petugas.index') }}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-sm font-bold transition flex items-center gap-2">
+                    &larr; Kembali ke Verifikasi
+                </a>
             </div>
         </div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
-
-            <div class="bg-white rounded-xl shadow-md border-t-4 border-emerald-500 overflow-hidden">
-                <div class="px-6 py-4 bg-emerald-50 border-b border-emerald-100 flex justify-between items-center">
-                    <h3 class="font-bold text-emerald-800 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        RIWAYAT DISETUJUI (BERHASIL)
-                    </h3>
-                    <span class="bg-emerald-200 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">
-                        {{ $kunjungans->where('status', 'disetujui')->count() }} Data
-                    </span>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+            <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-slate-100 text-slate-500 uppercase text-xs font-bold border-b border-slate-200">
+                            <tr>
+                                <th class="px-6 py-4">Waktu Proses</th>
+                                <th class="px-6 py-4">Pengunjung</th>
+                                <th class="px-6 py-4">Tujuan</th>
+                                <th class="px-6 py-4">Status Akhir</th>
+                                <th class="px-6 py-4">Catatan Petugas</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @forelse($riwayat as $item)
+                            <tr class="hover:bg-blue-50/30 transition">
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-slate-700">{{ $item->updated_at->format('d M Y') }}</div>
+                                    <div class="text-xs text-slate-400 font-mono">{{ $item->updated_at->format('H:i') }} WITA</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-slate-800">{{ $item->nama_pengunjung }}</div>
+                                    <div class="text-xs text-slate-500">NIK: {{ $item->nik_pengunjung }}</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-slate-600">Membesuk:</span>
+                                    <span class="font-bold text-slate-800">{{ $item->nama_tahanan }}</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    @if($item->status == 'disetujui')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        DISETUJUI
+                                    </span>
+                                    @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                        DITOLAK
+                                    </span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-slate-500 italic">
+                                    {{ $item->keterangan_petugas ?? '-' }}
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="5" class="px-6 py-10 text-center text-slate-400">
+                                    Belum ada data riwayat kunjungan.
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
-
-                <table class="w-full text-sm text-left">
-                    <thead class="bg-slate-100 text-slate-600 uppercase text-xs">
-                        <tr>
-                            <th class="px-6 py-3">Tanggal</th>
-                            <th class="px-6 py-3">Tahanan</th>
-                            <th class="px-6 py-3">Pengunjung</th>
-                            <th class="px-6 py-3 text-center">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @forelse($kunjungans->where('status', 'disetujui') as $item)
-                        <tr class="hover:bg-slate-50 transition">
-                            <td class="px-6 py-4 font-bold text-[#0f172a]">
-                                {{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->format('d M Y') }}
-                                <div class="text-xs font-normal text-slate-400">#REQ-{{ $item->id }}</div>
-                            </td>
-                            <td class="px-6 py-4">{{ $item->nama_tahanan }}</td>
-                            <td class="px-6 py-4">{{ $item->nama_pengunjung }}</td>
-                            <td class="px-6 py-4 text-center">
-                                <span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full text-xs font-bold">SUKSES</span>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="4" class="px-6 py-8 text-center text-slate-400">Tidak ada data.</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
             </div>
-
-            <div class="bg-white rounded-xl shadow-md border-t-4 border-red-500 overflow-hidden">
-                <div class="px-6 py-4 bg-red-50 border-b border-red-100 flex justify-between items-center">
-                    <h3 class="font-bold text-red-800 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        RIWAYAT DITOLAK
-                    </h3>
-                    <span class="bg-red-200 text-red-800 text-xs font-bold px-3 py-1 rounded-full">
-                        {{ $kunjungans->where('status', 'ditolak')->count() }} Data
-                    </span>
-                </div>
-
-                <table class="w-full text-sm text-left">
-                    <thead class="bg-slate-100 text-slate-600 uppercase text-xs">
-                        <tr>
-                            <th class="px-6 py-3">Tanggal</th>
-                            <th class="px-6 py-3">Tahanan</th>
-                            <th class="px-6 py-3">Pengunjung</th>
-                            <th class="px-6 py-3">Alasan Penolakan</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @forelse($kunjungans->where('status', 'ditolak') as $item)
-                        <tr class="hover:bg-red-50/20 transition">
-                            <td class="px-6 py-4 font-bold text-[#0f172a]">
-                                {{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->format('d M Y') }}
-                                <div class="text-xs font-normal text-slate-400">#REQ-{{ $item->id }}</div>
-                            </td>
-                            <td class="px-6 py-4">{{ $item->nama_tahanan }}</td>
-                            <td class="px-6 py-4">{{ $item->nama_pengunjung }}</td>
-                            <td class="px-6 py-4">
-                                <div class="text-xs font-bold text-red-600 bg-red-100 p-2 rounded border border-red-200">
-                                    "{{ $item->keterangan_petugas ?? '-' }}"
-                                </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="4" class="px-6 py-8 text-center text-slate-400">Tidak ada data.</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
         </div>
     </div>
 </x-app-layout>
