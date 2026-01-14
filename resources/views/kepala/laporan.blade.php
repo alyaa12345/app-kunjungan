@@ -1,130 +1,110 @@
 <x-app-layout>
-    <div class="min-h-screen bg-[#F8FAFC] pb-20 pt-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="min-h-screen bg-[#F1F5F9] font-sans pb-20 p-4 md:p-8">
+        <div class="max-w-7xl mx-auto print:hidden mb-8 flex justify-between items-end">
+            <div>
+                <h1 class="text-3xl font-bold text-slate-800">Laporan Evaluasi</h1>
+                <p class="text-slate-500 text-sm">Monitoring kinerja dan status verifikasi.</p>
+            </div>
+            <button onclick="window.print()" class="bg-[#0f172a] hover:bg-[#F5C542] hover:text-[#0f172a] text-white px-6 py-2.5 rounded-xl text-sm font-bold transition shadow-lg flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                </svg>
+                Cetak Laporan
+            </button>
+        </div>
 
-            <div class="flex flex-col md:flex-row justify-between items-end mb-6 gap-4">
-                <div>
-                    <h1 class="text-2xl font-bold text-slate-800">Arsip & Laporan</h1>
-                    <p class="text-sm text-slate-500">{{ $title }}</p>
-                </div>
+        <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden print:shadow-none print:border-none">
 
-                <div class="flex bg-white rounded-lg shadow-sm border border-slate-200 p-1">
-                    <a href="{{ route('kepala.laporan', ['periode' => 'hari_ini']) }}" class="px-4 py-2 text-xs font-bold rounded-md {{ request('periode') == 'hari_ini' ? 'bg-[#0f172a] text-white' : 'text-slate-600 hover:bg-slate-50' }}">Hari Ini</a>
-                    <a href="{{ route('kepala.laporan', ['periode' => 'minggu_ini']) }}" class="px-4 py-2 text-xs font-bold rounded-md {{ request('periode') == 'minggu_ini' ? 'bg-[#0f172a] text-white' : 'text-slate-600 hover:bg-slate-50' }}">Minggu Ini</a>
-                    <a href="{{ route('kepala.laporan', ['periode' => 'bulan_ini']) }}" class="px-4 py-2 text-xs font-bold rounded-md {{ request('periode') == 'bulan_ini' ? 'bg-[#0f172a] text-white' : 'text-slate-600 hover:bg-slate-50' }}">Bulan Ini</a>
-                    <a href="{{ route('kepala.laporan') }}" class="px-4 py-2 text-xs font-bold rounded-md {{ !request('periode') ? 'bg-[#0f172a] text-white' : 'text-slate-600 hover:bg-slate-50' }}">Semua</a>
+            <div class="hidden print:block p-8 pb-4 text-center border-b-4 border-double border-black mb-6">
+                <h3 class="text-xl font-bold uppercase tracking-widest">KEJAKSAAN REPUBLIK INDONESIA</h3>
+                <h2 class="text-3xl font-black uppercase tracking-wider text-[#166534] print-color-force">KEJAKSAAN NEGERI BANJARMASIN</h2>
+                <p class="text-sm italic mt-2">Jl. Brigjen H. Hasan Basri No. 4, Pangeran, Kota Banjarmasin</p>
+                <div class="mt-8 border-t border-black pt-4">
+                    <h2 class="text-lg font-bold uppercase underline decoration-1 underline-offset-4">LAPORAN MONITORING & EVALUASI</h2>
+                    <p class="text-xs mt-1 uppercase">{{ $title ?? 'Semua Data' }}</p>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow border border-slate-200 overflow-hidden">
-                <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                    <button onclick="window.print()" class="flex items-center gap-2 text-slate-600 hover:text-[#0f172a] text-xs font-bold uppercase transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                        </svg>
-                        Cetak Laporan
-                    </button>
-                    <div class="text-xs text-slate-400 italic">
-                        Total Data: {{ $laporan->count() }}
-                    </div>
-                </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left border-collapse">
+                    <thead class="bg-slate-50 text-slate-500 uppercase text-xs font-bold border-b border-slate-200 print:bg-gray-200 print:text-black print:border-black">
+                        <tr>
+                            <th class="px-6 py-4 w-10 text-center border-r border-slate-100 print:border-black">No</th>
+                            <th class="px-6 py-4 w-32 print:border-black">Tanggal</th>
+                            <th class="px-6 py-4 print:border-black">Pemohon</th>
+                            <th class="px-6 py-4 w-32 text-center print:border-black">Status</th>
+                            <th class="px-6 py-4 bg-yellow-50/50 text-slate-700 print:bg-gray-100 print:border-black w-48">Diproses Oleh (Verifikator)</th>
+                            <th class="px-6 py-4 w-32 print:border-black">Waktu</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 print:divide-black">
+                        @forelse($data as $index => $item)
+                        <tr class="hover:bg-slate-50 transition print:hover:bg-transparent">
+                            <td class="px-6 py-4 text-center border-r border-slate-100 print:border-black">{{ $index + 1 }}</td>
+                            <td class="px-6 py-4 print:border-black">{{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->format('d/m/Y') }}</td>
+                            <td class="px-6 py-4 font-bold uppercase print:border-black">{{ $item->user->name ?? '-' }}</td>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left">
-                        <thead class="bg-[#0f172a] text-[#F5C542] uppercase text-xs font-bold">
-                            <tr>
-                                <th class="px-6 py-4">Tanggal Kunjungan</th>
-                                <th class="px-6 py-4">Pengunjung</th>
-                                <th class="px-6 py-4">Tahanan</th>
-                                <th class="px-6 py-4">Status</th>
-                                <th class="px-6 py-4">Catatan Petugas</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            @forelse($laporan as $item)
-                            <tr class="hover:bg-slate-50">
-                                <td class="px-6 py-4">
-                                    <span class="block font-bold text-slate-700">{{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->format('d M Y') }}</span>
-                                    <span class="text-xs text-slate-400">{{ $item->jam_kunjungan }}</span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="font-bold text-slate-800">{{ $item->nama_pengunjung }}</div>
-                                    <div class="text-xs text-slate-500">NIK: {{ $item->nik_pengunjung }}</div>
-                                </td>
-                                <td class="px-6 py-4 text-slate-600">
-                                    {{ $item->nama_tahanan }}
-                                    <span class="text-xs bg-slate-100 px-1 rounded ml-1">Kamar {{ $item->nomor_kamar }}</span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    @if($item->status == 'disetujui')
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">
-                                        DISETUJUI
-                                    </span>
-                                    @elseif($item->status == 'ditolak')
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                                        DITOLAK
-                                    </span>
-                                    @else
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                                        PENDING
-                                    </span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4">
-                                    @if($item->keterangan_petugas)
-                                    <div class="text-xs italic text-slate-600 bg-yellow-50 p-2 rounded border border-yellow-100">
-                                        "{{ $item->keterangan_petugas }}"
-                                    </div>
-                                    <div class="text-[10px] text-slate-400 mt-1 text-right">
-                                        Diproses: {{ $item->updated_at->format('d/m H:i') }}
-                                    </div>
-                                    @else
-                                    <span class="text-slate-300">-</span>
-                                    @endif
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="5" class="px-6 py-12 text-center text-slate-400">
-                                    <div class="flex flex-col items-center">
-                                        <svg class="w-10 h-10 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                        </svg>
-                                        Tidak ada data laporan untuk periode ini.
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                            <td class="px-6 py-4 text-center print:border-black">
+                                @if($item->status == 'disetujui')
+                                <span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-[10px] font-bold uppercase print:bg-transparent print:text-black print:border print:border-black">Disetujui</span>
+                                @elseif($item->status == 'ditolak')
+                                <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-[10px] font-bold uppercase print:bg-transparent print:text-black print:border print:border-black">Ditolak</span>
+                                @else
+                                <span class="bg-amber-100 text-amber-700 px-2 py-1 rounded text-[10px] font-bold uppercase print:bg-transparent print:text-black">Menunggu</span>
+                                @endif
+                            </td>
+
+                            <td class="px-6 py-4 bg-yellow-50/30 print:bg-transparent print:border-black font-bold text-slate-700 uppercase italic">
+                                {{ $item->petugas->name ?? '- Belum Ada -' }}
+                            </td>
+
+                            <td class="px-6 py-4 text-xs text-slate-500 print:border-black">{{ $item->updated_at->format('H:i') }}</td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center text-slate-400 italic print:border-black">Tidak ada data.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
 
-            <div class="hidden print:block mt-12 break-inside-avoid">
-                <div class="flex justify-end">
-                    <div class="text-center">
-                        <p class="text-sm">Banjarmasin, {{ date('d F Y') }}</p>
-                        <p class="font-bold uppercase mt-1">Kepala Rutan</p>
-                        <div class="h-20"></div>
-                        <p class="font-bold underline">{{ Auth::user()->name }}</p>
-                        <p class="text-sm">NIP. ........................</p>
-                    </div>
+            <div class="hidden print:flex justify-end mt-16 px-12 break-inside-avoid">
+                <div class="text-center w-72">
+                    <p class="text-sm mb-1">Banjarmasin, {{ date('d F Y') }}</p>
+                    <p class="text-sm font-bold">Kepala Kejaksaan Negeri</p>
+                    <div class="h-24"></div>
+                    <p class="text-sm font-bold underline uppercase">H. FULAN, SH., MH.</p>
+                    <p class="text-xs">NIP. 19800101 200001 1 001</p>
                 </div>
             </div>
-
         </div>
     </div>
-
     <style>
         @media print {
             body {
-                background: white;
+                background: white !important;
             }
 
-            .no-print,
-            nav,
-            header {
+            .print\:hidden {
                 display: none !important;
+            }
+
+            table {
+                width: 100%;
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+
+            th,
+            td {
+                border: 1px solid black !important;
+                padding: 5px;
+            }
+
+            .print-color-force {
+                color: #166534 !important;
+                -webkit-print-color-adjust: exact;
             }
         }
     </style>

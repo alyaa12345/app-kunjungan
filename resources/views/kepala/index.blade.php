@@ -44,7 +44,7 @@
                         <h3 class="font-bold text-slate-800 text-lg">Aktivitas Pelayanan Terbaru</h3>
                         <p class="text-xs text-slate-500">5 Transaksi terakhir yang diproses oleh Staff.</p>
                     </div>
-                    <a href="{{ route('kepala.laporan') }}" class="text-xs font-bold text-[#0f172a] hover:text-[#F5C542] flex items-center gap-1 transition">
+                    <a href="{{ route('kepala.laporan.index') }}" class="text-xs font-bold text-[#0f172a] hover:text-[#F5C542] flex items-center gap-1 transition">
                         Lihat Semua Arsip &rarr;
                     </a>
                 </div>
@@ -68,11 +68,13 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-2">
-                                        <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600">
-                                            ST
+                                        <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600 uppercase">
+                                            {{ substr($item->petugas->name ?? 'S', 0, 1) }}{{ substr(strrchr($item->petugas->name ?? 'System', " "), 1, 1) }}
                                         </div>
                                         <div>
-                                            <div class="font-bold text-slate-800 text-xs uppercase">Staff Admin</div>
+                                            <div class="font-bold text-slate-800 text-xs uppercase">
+                                                {{ $item->petugas->name ?? 'System Admin' }}
+                                            </div>
                                             <div class="text-[10px] text-slate-400">Verifikator</div>
                                         </div>
                                     </div>

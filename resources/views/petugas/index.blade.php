@@ -82,10 +82,12 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <div class="font-bold text-slate-800 text-base">{{ $item->nama_pengunjung }}</div>
+                                    <div class="font-bold text-slate-800 text-base uppercase">
+                                        {{ $item->user->name ?? 'Guest' }}
+                                    </div>
                                     <div class="text-xs text-slate-500 mt-1 flex items-center gap-1">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                         </svg>
                                         Membawa {{ $item->jumlah_pengikut }} Anggota
                                     </div>
@@ -96,13 +98,22 @@
                                             {{ substr($item->nama_tahanan, 0, 1) }}
                                         </div>
                                         <div>
-                                            <div class="font-bold text-slate-800">{{ $item->nama_tahanan }}</div>
+                                            <div class="font-bold text-slate-800 uppercase">{{ $item->nama_tahanan }}</div>
                                             <div class="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded inline-block mt-0.5">Kamar: {{ $item->nomor_kamar }}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <button onclick="openVerifyModal('{{ $item->id }}', '{{ addslashes($item->nama_pengunjung) }}', '{{ $item->jumlah_pengikut }}', '{{ addslashes($item->keperluan) }}', '{{ addslashes($item->nama_tahanan) }}', '{{ addslashes($item->nomor_kamar) }}', '{{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->format('d F Y') }}', '{{ $item->foto_ktp ? asset('storage/'.$item->foto_ktp) : '' }}')"
+                                    <button onclick="openVerifyModal(
+                                        '{{ $item->id }}', 
+                                        '{{ addslashes($item->user->name ?? $item->nama_pengunjung) }}', 
+                                        '{{ $item->jumlah_pengikut }}', 
+                                        '{{ addslashes($item->keperluan) }}', 
+                                        '{{ addslashes($item->nama_tahanan) }}', 
+                                        '{{ addslashes($item->nomor_kamar) }}', 
+                                        '{{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->format('d F Y') }}', 
+                                        '{{ $item->foto_ktp ? asset('storage/'.$item->foto_ktp) : '' }}'
+                                    )"
                                         class="inline-flex items-center gap-2 px-5 py-2 bg-[#0f172a] hover:bg-[#F5C542] hover:text-[#0f172a] text-white text-xs font-bold rounded-lg shadow-md transition-all transform active:scale-95">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -162,7 +173,7 @@
                             <div class="grid grid-cols-2 gap-6">
                                 <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
                                     <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Nama Lengkap</label>
-                                    <div id="modalVisitorName" class="text-lg font-bold text-slate-800">...</div>
+                                    <div id="modalVisitorName" class="text-lg font-bold text-slate-800 uppercase">...</div>
                                 </div>
                                 <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
                                     <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Jumlah Pengikut</label>
@@ -176,7 +187,7 @@
                             <div class="grid grid-cols-2 gap-6 mb-4">
                                 <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
                                     <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Nama Tahanan</label>
-                                    <div id="modalInmateName" class="text-lg font-bold text-slate-800">...</div>
+                                    <div id="modalInmateName" class="text-lg font-bold text-slate-800 uppercase">...</div>
                                 </div>
                                 <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
                                     <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Lokasi Kamar</label>
@@ -201,7 +212,7 @@
                 </button>
 
                 <form id="modalApproveForm" action="" method="POST">
-                    @csrf @method('PATCH')
+                    @csrf @method('PUT')
                     <input type="hidden" name="status" value="disetujui">
                     <button type="submit" class="px-8 py-3 bg-[#0f172a] text-white font-bold rounded-lg text-sm hover:bg-[#F5C542] hover:text-[#0f172a] transition shadow-lg flex items-center gap-2" onclick="return confirm('Apakah data sudah diverifikasi dan sesuai?')">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -226,7 +237,7 @@
             </div>
 
             <form id="rejectForm" action="" method="POST">
-                @csrf @method('PATCH')
+                @csrf @method('PUT')
                 <input type="hidden" name="status" value="ditolak">
                 <label class="text-xs font-bold text-slate-500 uppercase block mb-2">Alasan Penolakan</label>
                 <textarea name="keterangan_petugas" class="w-full border-slate-300 rounded-lg text-sm mb-4 focus:ring-red-500 focus:border-red-500 min-h-[100px]" placeholder="Contoh: KTP Buram, Salah Kamar, dll..." required></textarea>
@@ -245,8 +256,8 @@
             let filter = input.value.toUpperCase();
             let table = document.getElementById("dataTable");
             let tr = table.getElementsByTagName("tr");
-            for (let i = 1; i < tr.length; i++) {
-                let td = tr[i].getElementsByTagName("td")[1];
+            for (let i = 1; i < tr.length; i++) { // Start from 1 to skip THEAD
+                let td = tr[i].getElementsByTagName("td")[1]; // Kolom ke-2 (Nama Pemohon)
                 if (td) {
                     let txtValue = td.textContent || td.innerText;
                     tr[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? "" : "none";
@@ -273,7 +284,8 @@
                 noImg.classList.remove('hidden');
             }
 
-            let url = "{{ route('petugas.updateStatus', ':id') }}".replace(':id', id);
+            // Update Action URL untuk form
+            let url = "{{ route('petugas.update', ':id') }}".replace(':id', id);
             document.getElementById('modalApproveForm').action = url;
             document.getElementById('rejectForm').action = url;
 

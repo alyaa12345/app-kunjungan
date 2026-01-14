@@ -9,9 +9,9 @@ class Kunjungan extends Model
 {
     use HasFactory;
 
-    // Field yang boleh diisi (Mass Assignment)
     protected $fillable = [
         'user_id',
+        'petugas_id', // <--- TAMBAHAN: Agar ID petugas yang memverifikasi bisa disimpan
         'nama_pengunjung',
         'nik_pengunjung',
         'jenis_kelamin',
@@ -29,9 +29,17 @@ class Kunjungan extends Model
         'keterangan_petugas'
     ];
 
-    // Relasi balik ke User (Setiap kunjungan dimiliki 1 user)
+    // Relasi ke User (Pemohon / Masyarakat)
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // Relasi ke Petugas (Verifikator)
+    // Ini fungsi BARU yang sangat penting untuk Laporan
+    public function petugas()
+    {
+        // Mengambil data user berdasarkan kolom petugas_id
+        return $this->belongsTo(User::class, 'petugas_id');
     }
 }

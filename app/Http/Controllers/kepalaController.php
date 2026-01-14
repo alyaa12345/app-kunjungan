@@ -8,13 +8,14 @@ use Carbon\Carbon;
 
 class KepalaController extends Controller
 {
-    // DASHBOARD UTAMA: STATISTIK & MONITORING
+    // ====================================================
+    // 1. DASHBOARD UTAMA (MONITORING KINERJA)
+    // ====================================================
     public function index()
     {
-        // 1. Ambil Tanggal Hari Ini
         $today = Carbon::today();
 
-        // 2. Hitung Statistik Hari Ini
+        // 1. Statistik Hari Ini
         $stats = [
             'total_hari_ini' => Kunjungan::whereDate('created_at', $today)->count(),
             'disetujui'      => Kunjungan::whereDate('created_at', $today)->where('status', 'disetujui')->count(),
@@ -22,9 +23,9 @@ class KepalaController extends Controller
             'menunggu'       => Kunjungan::whereDate('created_at', $today)->where('status', 'menunggu')->count(),
         ];
 
-        // 3. Ambil 5 Aktivitas Terbaru (Log Kinerja Petugas)
-        // Menampilkan data yang baru saja diproses oleh petugas
-        $terbaru = Kunjungan::whereIn('status', ['disetujui', 'ditolak'])
+        // 2. Log Aktivitas Terbaru (5 Terakhir)
+        $terbaru = Kunjungan::with(['user', 'petugas'])
+            ->whereIn('status', ['disetujui', 'ditolak'])
             ->latest('updated_at')
             ->take(5)
             ->get();
@@ -32,39 +33,53 @@ class KepalaController extends Controller
         return view('kepala.index', compact('stats', 'terbaru'));
     }
 
-    // HALAMAN LAPORAN: FILTER PER HARI/MINGGU/BULAN
+    // ====================================================
+    // 2. HALAMAN LAPORAN EVALUASI (FILTER LENGKAP)
+    // ====================================================
     public function laporan(Request $request)
     {
-        // Default: Tampilkan data bulan ini jika tidak ada filter
-        $query = Kunjungan::query();
+        // Load relasi 'petugas' agar nama verifikator bisa ditampilkan
+        $query = Kunjungan::with(['user', 'petugas']);
 
-        // Filter Berdasarkan Tanggal (Dari User)
+        $title = "Semua Arsip Data";
+
+        // Filter Rentang Tanggal
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('tanggal_kunjungan', [$request->start_date, $request->end_date]);
-            $title = "Laporan Periode " . Carbon::parse($request->start_date)->format('d M Y') . " - " . Carbon::parse($request->end_date)->format('d M Y');
+            $title = "Laporan Periode: " . Carbon::parse($request->start_date)->format('d/m/Y') . " - " . Carbon::parse($request->end_date)->format('d/m/Y');
         }
-        // Filter Cepat (Opsional: jika Anda ingin tombol cepat)
+        // Filter Cepat
         elseif ($request->periode == 'hari_ini') {
             $query->whereDate('tanggal_kunjungan', Carbon::today());
             $title = "Laporan Hari Ini (" . Carbon::today()->format('d M Y') . ")";
         } elseif ($request->periode == 'minggu_ini') {
-            $query->whereBetween('tanggal_kunjungan', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
-            $title = "Laporan Minggu Ini";
+            $start = Carbon::now()->startOfWeek();
+            $end   = Carbon::now()->endOfWeek();
+            $query->whereBetween('tanggal_kunjungan', [$start, $end]);
+            $title = "Laporan Minggu Ini (" . $start->format('d M') . " - " . $end->format('d M Y') . ")";
         } elseif ($request->periode == 'bulan_ini') {
-            $query->whereMonth('tanggal_kunjungan', Carbon::now()->month);
-            $title = "Laporan Bulan " . Carbon::now()->format('F Y');
-        } else {
-            // Default semua data (diurutkan terbaru)
-            $title = "Semua Arsip Data";
+            $query->whereMonth('tanggal_kunjungan', Carbon::now()->month)
+                ->whereYear('tanggal_kunjungan', Carbon::now()->year);
+            $title = "Laporan Bulan " . Carbon::now()->translatedFormat('F Y');
         }
 
-        // Pencarian Nama
+        // Pencarian
         if ($request->filled('search')) {
-            $query->where('nama_pengunjung', 'like', '%' . $request->search . '%');
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_pengunjung', 'like', "%{$search}%")
+                    ->orWhere('nama_tahanan', 'like', "%{$search}%");
+            });
         }
 
-        $laporan = $query->latest()->get();
+        // Filter Status
+        if ($request->has('status') && $request->status != 'semua') {
+            $query->where('status', $request->status);
+        }
 
-        return view('kepala.laporan', compact('laporan', 'title'));
+        $data = $query->latest()->get();
+
+        // PERBAIKAN DISINI: Ubah ke 'kepala.laporan' (sesuai nama file Anda)
+        return view('kepala.laporan', compact('data', 'title'));
     }
 }

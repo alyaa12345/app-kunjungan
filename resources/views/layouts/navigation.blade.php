@@ -34,7 +34,7 @@
                         Meja Pimpinan
                     </x-nav-link>
 
-                    <x-nav-link :href="route('kepala.laporan')" :active="request()->routeIs('kepala.laporan')" class="text-white hover:text-[#F5C542]">
+                    <x-nav-link :href="route('kepala.laporan.index')" :active="request()->routeIs('kepala.laporan.index')" class="text-white hover:text-[#F5C542]">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                         </svg>
@@ -66,7 +66,7 @@
                         Arsip
                     </x-nav-link>
 
-                    <x-nav-link :href="route('petugas.laporan')" :active="request()->routeIs('petugas.laporan')" class="text-white hover:text-[#F5C542]">
+                    <x-nav-link :href="route('petugas.laporan.index')" :active="request()->routeIs('petugas.laporan.index')" class="text-white hover:text-[#F5C542]">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
@@ -130,13 +130,13 @@
         <div class="pt-2 pb-3 space-y-1">
             @if(Auth::user()->role == 'kepala')
             <x-responsive-nav-link :href="route('kepala.index')" :active="request()->routeIs('kepala.index')" class="text-[#F5C542]">Meja Pimpinan</x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('kepala.laporan')" :active="request()->routeIs('kepala.laporan')" class="text-white">Laporan</x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('kepala.laporan.index')" :active="request()->routeIs('kepala.laporan.index')" class="text-white">Laporan</x-responsive-nav-link>
 
             @elseif(Auth::user()->role == 'petugas')
             <x-responsive-nav-link :href="route('petugas.index')" :active="request()->routeIs('petugas.index')" class="text-white">Meja Verifikasi</x-responsive-nav-link>
             <x-responsive-nav-link :href="route('petugas.gate')" :active="request()->routeIs('petugas.gate')" class="text-white">Gate Check</x-responsive-nav-link>
             <x-responsive-nav-link :href="route('petugas.riwayat')" :active="request()->routeIs('petugas.riwayat')" class="text-white">Arsip & Riwayat</x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('petugas.laporan')" :active="request()->routeIs('petugas.laporan')" class="text-white">Laporan</x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('petugas.laporan.index')" :active="request()->routeIs('petugas.laporan.index')" class="text-white">Laporan</x-responsive-nav-link>
 
             @elseif(Auth::user()->role == 'masyarakat')
             <x-responsive-nav-link :href="route('masyarakat.index')" :active="request()->routeIs('masyarakat.index')" class="text-white">Beranda</x-responsive-nav-link>
