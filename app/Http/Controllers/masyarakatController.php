@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Storage;
 
 class MasyarakatController extends Controller
 {
-    // 1. Dashboard Utama Masyarakat
+    // ================================================================
+    // 1. DASHBOARD UTAMA
+    // ================================================================
     public function index()
     {
         $userId = Auth::id();
@@ -27,17 +29,20 @@ class MasyarakatController extends Controller
             'ditolak'   => $kunjungans->where('status', 'ditolak')->count(),
         ];
 
-        // Pastikan folder view Anda bernama 'masyarakat' atau 'masyarakat', sesuaikan di sini
         return view('masyarakat.index', compact('kunjungans', 'statistik'));
     }
 
-    // 2. Halaman Formulir Pengajuan (Create)
+    // ================================================================
+    // 2. HALAMAN FORMULIR PENGAJUAN (CREATE)
+    // ================================================================
     public function create()
     {
         return view('masyarakat.create');
     }
 
-    // 3. Proses Simpan Data (Store)
+    // ================================================================
+    // 3. PROSES SIMPAN DATA (STORE)
+    // ================================================================
     public function store(Request $request)
     {
         // Validasi Input
@@ -85,7 +90,9 @@ class MasyarakatController extends Controller
         return redirect()->route('masyarakat.index')->with('success', 'Permohonan kunjungan berhasil dikirim!');
     }
 
-    // 4. Halaman Detail Kunjungan (Tiket)
+    // ================================================================
+    // 4. HALAMAN DETAIL KUNJUNGAN (TIKET)
+    // ================================================================
     public function show($id)
     {
         $kunjungan = Kunjungan::where('id', $id)
@@ -95,46 +102,36 @@ class MasyarakatController extends Controller
         return view('masyarakat.show', compact('kunjungan'));
     }
 
-    // 5. Halaman Riwayat Kunjungan
+    // ================================================================
+    // 5. HALAMAN RIWAYAT KUNJUNGAN
+    // ================================================================
     public function riwayat()
     {
         $kunjungans = Kunjungan::where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Pastikan view ini ada di folder resources/views/masyarakat/riwayat.blade.php
         return view('masyarakat.riwayat', compact('kunjungans'));
     }
 
-    // 6. Halaman Laporan Dinamis
-    public function laporan($jenis)
+    // ================================================================
+    // 6. HALAMAN LAPORAN / REKAPITULASI (FITUR PDF & EXCEL)
+    // ================================================================
+    public function laporan(Request $request)
     {
-        $userId = Auth::id();
-        $query = Kunjungan::where('user_id', $userId)->orderBy('created_at', 'desc');
+        // 1. Ambil data HANYA milik user yang login
+        // Pastikan load relasi 'petugas' agar nama verifikator muncul
+        $query = Kunjungan::with('petugas')->where('user_id', Auth::id());
 
-        $data = $query->get();
-        $judul = '';
-
-        switch ($jenis) {
-            case 'statistik':
-                $judul = 'Laporan Statistik Ringkasan';
-                break;
-            case 'jadwal':
-                $judul = 'Laporan Jadwal Kunjungan';
-                break;
-            case 'audit':
-                $judul = 'Laporan Detail & Audit Trail';
-                break;
-            case 'dokumen':
-                $judul = 'Laporan Status Dokumen';
-                break;
-            case 'notifikasi':
-                $judul = 'Laporan Notifikasi & Riwayat';
-                break;
-            default:
-                abort(404);
+        // 2. Filter Status (Jika user memilih dropdown)
+        if ($request->has('status') && $request->status != 'semua') {
+            $query->where('status', $request->status);
         }
 
-        return view('masyarakat.laporan', compact('data', 'jenis', 'judul'));
+        // 3. PENTING: Order by ASC (Januari -> Februari) agar grouping di PDF rapi
+        $data = $query->orderBy('tanggal_kunjungan', 'asc')->get();
+
+        // 4. Return ke view laporan baru yang kita perbaiki
+        return view('masyarakat.laporan', compact('data'));
     }
 }

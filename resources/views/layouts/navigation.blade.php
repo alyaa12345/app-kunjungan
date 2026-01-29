@@ -74,15 +74,13 @@
                     </x-nav-link>
 
                     {{-- ================================================= --}}
-                    {{-- 3. MENU MASYARAKAT                                --}}
+                    {{-- 3. MENU MASYARAKAT (HANYA BERANDA)                --}}
                     {{-- ================================================= --}}
                     @elseif(Auth::user()->role == 'masyarakat')
                     <x-nav-link :href="route('masyarakat.index')" :active="request()->routeIs('masyarakat.index')" class="text-white">
                         Beranda
                     </x-nav-link>
-                    <x-nav-link :href="route('masyarakat.riwayat')" :active="request()->routeIs('masyarakat.riwayat')" class="text-white">
-                        Riwayat Saya
-                    </x-nav-link>
+                    {{-- 'Riwayat Saya' DIHAPUS agar tidak duplikat --}}
                     @endif
 
                 </div>
@@ -140,7 +138,7 @@
 
             @elseif(Auth::user()->role == 'masyarakat')
             <x-responsive-nav-link :href="route('masyarakat.index')" :active="request()->routeIs('masyarakat.index')" class="text-white">Beranda</x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('masyarakat.riwayat')" :active="request()->routeIs('masyarakat.riwayat')" class="text-white">Riwayat Saya</x-responsive-nav-link>
+            {{-- 'Riwayat Saya' DIHAPUS (Mobile) --}}
             @endif
         </div>
 

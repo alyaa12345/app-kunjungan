@@ -1,312 +1,394 @@
 <x-app-layout>
-    <div class="min-h-screen bg-[#F8FAFC] font-sans pb-20">
+    <div class="web-view min-h-screen bg-[#F1F5F9] font-sans pb-20">
 
-        <div class="print:hidden">
+        <div class="bg-[#1e293b] pt-10 pb-32 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-yellow-500 rounded-full mix-blend-overlay filter blur-3xl opacity-10"></div>
 
-            <div class="bg-[#0f172a] shadow-md relative overflow-hidden py-10 px-6">
-                <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-
-                <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center relative z-10 gap-6">
+            <div class="max-w-7xl mx-auto px-6 relative z-10">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
-                        <span class="text-[#F5C542] font-bold tracking-widest text-xs uppercase mb-1 block">Area Masyarakat</span>
-                        <h1 class="text-2xl md:text-3xl font-bold text-white tracking-tight">Jadwal & Tiket Kunjungan</h1>
-                        <p class="text-slate-400 text-sm mt-1">Kelola tiket kunjungan Anda atau cetak laporan untuk arsip.</p>
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-yellow-500 font-bold text-xs uppercase tracking-widest">Area Masyarakat</span>
+                        </div>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-white leading-tight">
+                            Riwayat & Tiket <br> Kunjungan Anda
+                        </h1>
+                        <p class="text-slate-400 mt-2 max-w-xl text-sm leading-relaxed">
+                            Pantau status pengajuan, lihat detail jadwal, dan cetak tiket kunjungan Anda dalam satu tempat yang terpadu.
+                        </p>
                     </div>
 
-                    <button onclick="window.print()" class="group bg-[#F5C542] hover:bg-yellow-400 text-[#0f172a] px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-yellow-500/20 transition-all flex items-center gap-2 text-sm">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                    <button onclick="window.print()" class="group bg-[#F5C542] hover:bg-[#e0b134] text-[#1e293b] px-6 py-3.5 rounded-xl font-bold shadow-lg shadow-yellow-500/20 transition-all flex items-center gap-3 transform hover:-translate-y-1">
+                        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                         </svg>
-                        <span>Cetak Laporan</span>
+                        <span>Cetak Laporan Lengkap</span>
                     </button>
                 </div>
             </div>
+        </div>
 
-            <div class="max-w-6xl mx-auto px-6 mt-8 relative z-20">
-                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div class="max-w-7xl mx-auto px-6 -mt-20 relative z-20">
 
-                    @forelse($data as $item)
-                    <div class="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col h-full">
+            <div class="bg-white p-4 rounded-xl shadow-lg border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+                <div class="flex items-center gap-3 text-slate-600">
+                    <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-sm">Filter Data Kunjungan</h3>
+                        <p class="text-xs text-slate-400">Menampilkan semua riwayat.</p>
+                    </div>
+                </div>
+                <div class="bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 text-xs font-bold text-slate-500">
+                    Total Data: {{ count($data) }}
+                </div>
+            </div>
 
-                        <div class="p-5 border-b border-slate-50 flex justify-between items-start bg-gradient-to-br from-white to-slate-50">
-                            <div class="flex items-center gap-3">
-                                <div class="bg-blue-100 text-blue-600 p-2.5 rounded-xl shrink-0">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Tanggal Kunjungan</p>
-                                    <p class="font-bold text-slate-800 text-lg whitespace-nowrap">{{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->format('d M Y') }}</p>
-                                </div>
-                            </div>
-
-                            <div class="shrink-0">
-                                @if($item->status == 'disetujui')
-                                <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-md border border-emerald-200 uppercase">Disetujui</span>
-                                @elseif($item->status == 'ditolak')
-                                <span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-1 rounded-md border border-red-200 uppercase">Ditolak</span>
-                                @else
-                                <span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-1 rounded-md border border-amber-200 uppercase animate-pulse">Proses</span>
-                                @endif
-                            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @forelse($data as $item)
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl transition-all duration-300 group">
+                    <div class="p-5 border-b border-slate-100 flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                                {{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->translatedFormat('l') }}
+                            </p>
+                            <h3 class="text-xl font-black text-slate-800">
+                                {{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->format('d M Y') }}
+                            </h3>
                         </div>
-
-                        <div class="p-5 space-y-4 flex-grow">
-                            <div class="flex justify-between items-center">
-                                <div class="overflow-hidden">
-                                    <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">Tahanan Tujuan</p>
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-xs border border-slate-200 shrink-0">
-                                            {{ substr($item->nama_tahanan, 0, 1) }}
-                                        </div>
-                                        <p class="font-bold text-slate-700 uppercase text-sm truncate">{{ $item->nama_tahanan }}</p>
-                                    </div>
-                                </div>
-                                <div class="text-right shrink-0">
-                                    <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">ID Tiket</p>
-                                    <p class="font-mono text-sm font-bold text-slate-600 bg-slate-50 px-2 py-1 rounded border border-slate-200">REQ-{{ $item->id }}</p>
-                                </div>
-                            </div>
-
-                            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100 text-xs space-y-2">
-                                <div class="flex justify-between">
-                                    <span class="text-slate-500 font-medium">Pengikut</span>
-                                    <span class="font-bold text-slate-700">{{ $item->jumlah_pengikut }} Orang</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-slate-500 font-medium">Lokasi Sel</span>
-                                    <span class="font-bold text-blue-600 bg-blue-50 px-1.5 rounded">{{ $item->nomor_kamar ?? '-' }}</span>
-                                </div>
-                            </div>
-
-                            <div class="pt-2 border-t border-dashed border-slate-200 mt-2">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-[10px] text-slate-400 font-bold uppercase">Verifikator:</span>
-                                    <span class="text-xs font-bold text-slate-700">
-                                        {{ $item->petugas->name ?? '-' }}
-                                    </span>
-                                </div>
-                            </div>
+                        <div class="text-right">
+                            <span class="block text-[10px] text-slate-400 font-bold uppercase">ID TIKET</span>
+                            <span class="block text-lg font-mono font-bold text-blue-600">#{{ $item->id }}</span>
                         </div>
+                    </div>
 
-                        <div class="px-5 py-4 bg-slate-50 border-t border-slate-100 mt-auto">
+                    <div class="p-5 bg-slate-50/50">
+                        <div class="mb-4">
                             @if($item->status == 'disetujui')
-                            <button onclick="openTicketModal('{{ $item->id }}', '{{ $item->nama_tahanan }}', '{{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->format('d M Y') }}', '{{ \Carbon\Carbon::parse($item->created_at)->format('H:i') }}', '{{ $item->nomor_kamar ?? '-' }}', '{{ $item->jumlah_pengikut }}')"
-                                class="w-full py-2.5 bg-white border border-blue-200 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 uppercase tracking-wider">
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100/50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase w-full justify-center">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
-                                Lihat E-Tiket
-                            </button>
-                            @else
-                            <div class="w-full py-2.5 bg-slate-100 text-slate-400 rounded-lg text-xs font-bold text-center uppercase tracking-wider flex items-center justify-center gap-2 cursor-not-allowed">
+                                Disetujui
+                            </div>
+                            @elseif($item->status == 'ditolak')
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-100/50 border border-red-200 text-red-700 text-xs font-bold uppercase w-full justify-center">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                Ditolak
+                            </div>
+                            @else
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-100/50 border border-amber-200 text-amber-700 text-xs font-bold uppercase w-full justify-center">
+                                <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 Menunggu Verifikasi
                             </div>
                             @endif
                         </div>
-                    </div>
-                    @empty
-                    <div class="col-span-1 md:col-span-2 xl:col-span-3 text-center py-20 bg-white rounded-2xl border border-dashed border-slate-300">
-                        <div class="inline-block p-4 rounded-full bg-slate-50 mb-3">
-                            <svg class="w-12 h-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
+
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-slate-500 flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    Tahanan
+                                </span>
+                                <span class="font-bold text-slate-800 uppercase">{{ $item->nama_tahanan }}</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-slate-500 flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Waktu
+                                </span>
+                                <span class="font-bold text-slate-800">{{ $item->jam_kunjungan }}</span>
+                            </div>
                         </div>
-                        <h3 class="text-lg font-bold text-slate-700">Tidak Ada Jadwal</h3>
-                        <p class="text-slate-500 text-sm mt-1">Anda belum membuat pengajuan kunjungan.</p>
                     </div>
-                    @endforelse
                 </div>
+                @empty
+                <div class="col-span-full py-12 text-center bg-white rounded-2xl border border-dashed border-slate-300">
+                    <div class="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <p class="text-slate-500 font-medium">Belum ada riwayat kunjungan.</p>
+                </div>
+                @endforelse
             </div>
         </div>
+    </div>
 
-        <div id="ticketModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-            <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" onclick="closeTicketModal()"></div>
+    <div id="print-layer">
+        <div class="paper-a4">
 
-            <div class="fixed inset-0 z-10 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <img src="{{ asset('assets/logo-kejari.png') }}" class="print-watermark">
 
-                    <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-sm">
+            <table class="kop-table">
+                <tr>
+                    <td class="logo-col">
+                        <img src="{{ asset('assets/logo-kejari.png') }}">
+                    </td>
+                    <td class="text-col">
+                        <div class="kop-1">KEJAKSAAN REPUBLIK INDONESIA</div>
+                        <div class="kop-2">KEJAKSAAN TINGGI KALIMANTAN SELATAN</div>
+                        <div class="kop-3">KEJAKSAAN NEGERI BANJARMASIN</div>
+                        <div class="kop-alamat">Jl. Brig Jend. Hasan Basri No.3, Pangeran, Kota Banjarmasin, Kalimantan Selatan 70124</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="garis-bawah"></td>
+                </tr>
+            </table>
 
-                        <button onclick="closeTicketModal()" class="absolute top-4 right-4 text-white hover:text-yellow-400 z-20 transition-colors">
-                            <svg class="w-8 h-8 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-
-                        <div class="bg-[#0f172a] p-8 text-white relative overflow-hidden">
-                            <img src="{{ asset('assets/logo-kejari.png') }}" class="absolute -right-6 -top-6 w-40 h-40 opacity-10 rotate-12">
-                            <div class="relative z-10">
-                                <p class="text-[10px] font-bold tracking-[0.2em] text-[#F5C542] uppercase">Kejaksaan Negeri</p>
-                                <h3 class="text-3xl font-black tracking-tighter mt-1">VISITOR PASS</h3>
-
-                                <div class="mt-8">
-                                    <p class="text-[10px] text-slate-400 uppercase tracking-widest mb-1">Pengunjung Utama</p>
-                                    <h2 class="text-2xl font-bold uppercase text-white truncate leading-tight">{{ Auth::user()->name }}</h2>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="p-8 bg-white relative">
-                            <div class="absolute -left-4 top-[-16px] w-8 h-8 bg-slate-900/80 rounded-full z-10"></div>
-                            <div class="absolute -right-4 top-[-16px] w-8 h-8 bg-slate-900/80 rounded-full z-10"></div>
-
-                            <div class="grid grid-cols-2 gap-8 mb-6 mt-2">
-                                <div>
-                                    <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Tujuan</p>
-                                    <p id="modalTahanan" class="text-base font-bold text-slate-800 uppercase truncate mt-1">...</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Rombongan</p>
-                                    <p id="modalJml" class="text-base font-bold text-slate-800 mt-1">...</p>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-8 items-end">
-                                <div>
-                                    <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Tanggal</p>
-                                    <p id="modalTgl" class="text-base font-bold text-slate-800 mt-1">...</p>
-                                    <p id="modalJam" class="text-xs text-slate-500">...</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">Blok/Kamar</p>
-                                    <span id="modalKamar" class="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-bold">...</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-50 p-8 pt-0 text-center pb-10 border-t border-dashed border-slate-200">
-                            <div class="h-12 w-full bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Code_39_243.svg/1200px-Code_39_243.svg.png')] bg-repeat-x bg-contain opacity-40 mt-8 mix-blend-darken"></div>
-                            <p id="modalId" class="text-[10px] text-slate-400 font-mono mt-3 uppercase tracking-widest">REQ-...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="hidden print:block bg-white text-black p-0 m-0 w-full h-full">
-
-            <div class="flex items-center justify-center border-b-4 border-double border-black pb-4 mb-8 relative">
-                <div class="absolute left-0 top-0">
-                    <img src="{{ asset('assets/logo-kejari.png') }}" class="h-24 w-auto object-contain">
-                </div>
-                <div class="text-center w-full px-24">
-                    <h3 class="text-lg font-bold uppercase tracking-wide">KEJAKSAAN REPUBLIK INDONESIA</h3>
-                    <h2 class="text-2xl font-black uppercase tracking-wider scale-y-110 text-[#166534] print-color-force">KEJAKSAAN NEGERI BANJARMASIN</h2>
-                    <p class="text-sm italic mt-1">Jl. Brigjen H. Hasan Basri No. 4, Pangeran, Kec. Banjarmasin Utara, Kota Banjarmasin</p>
-                    <p class="text-xs">Telp: (0511) 330XXXX | Email: kn.banjarmasin@kejaksaan.go.id</p>
-                </div>
+            <div class="judul-area">
+                <h1>LAPORAN REKAPITULASI KUNJUNGAN</h1>
+                <p>PELAPOR: {{ strtoupper(Auth::user()->name) }}</p>
             </div>
 
-            <div class="text-center mb-8">
-                <h1 class="text-lg font-bold uppercase underline decoration-1 underline-offset-2">LAPORAN REKAPITULASI KUNJUNGAN</h1>
-                <p class="text-sm mt-1 uppercase font-bold">PELAPOR: {{ Auth::user()->name }}</p>
-            </div>
-
-            <table class="w-full text-sm border-collapse border border-black mb-8">
+            <table class="print-table">
                 <thead>
-                    <tr class="bg-gray-200 text-black font-bold uppercase text-xs text-center print-color-force">
-                        <th class="border border-black px-2 py-2 w-10">No</th>
-                        <th class="border border-black px-2 py-2 w-24">Tanggal</th>
-                        <th class="border border-black px-2 py-2 w-20">ID Tiket</th>
-                        <th class="border border-black px-2 py-2">Nama Tahanan</th>
-                        <th class="border border-black px-2 py-2 w-16">Jml</th>
-                        <th class="border border-black px-2 py-2 w-20">Status</th>
-                        <th class="border border-black px-2 py-2">Petugas Verifikator</th>
+                    <tr>
+                        <th style="width: 5%;">NO</th>
+                        <th style="width: 15%;">TANGGAL</th>
+                        <th style="width: 10%;">ID TIKET</th>
+                        <th>TAHANAN TUJUAN</th>
+                        <th style="width: 10%;">JML</th>
+                        <th style="width: 15%;">JAM</th>
+                        <th style="width: 15%;">STATUS</th>
+                        <th style="width: 15%;">PETUGAS</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($data as $index => $item)
                     <tr>
-                        <td class="border border-black px-2 py-2 text-center">{{ $index + 1 }}</td>
-                        <td class="border border-black px-2 py-2 text-center">{{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->format('d/m/Y') }}</td>
-                        <td class="border border-black px-2 py-2 text-center font-mono text-xs">REQ-{{ $item->id }}</td>
-                        <td class="border border-black px-2 py-2 uppercase font-bold">{{ $item->nama_tahanan }}</td>
-                        <td class="border border-black px-2 py-2 text-center">{{ $item->jumlah_pengikut }}</td>
-                        <td class="border border-black px-2 py-2 text-center font-bold text-[10px] uppercase">
-                            {{ $item->status }}
+                        <td class="center">{{ $index + 1 }}</td>
+                        <td class="center">{{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->format('d/m/Y') }}</td>
+                        <td class="center font-bold">#{{ $item->id }}</td>
+                        <td class="uppercase" style="text-align: left; padding-left: 8px;">{{ $item->nama_tahanan }}</td>
+                        <td class="center">{{ $item->jumlah_pengikut ?? 1 }}</td>
+                        <td class="center" style="font-size: 9pt;">{{ $item->jam_kunjungan }}</td>
+                        <td class="center status-cell {{ $item->status }}">
+                            {{ strtoupper($item->status) }}
                         </td>
-                        <td class="border border-black px-2 py-2 text-center italic">
-                            {{ $item->petugas->name ?? '-' }}
-                        </td>
+                        <td class="center italic">{{ $item->petugas->name ?? '-' }}</td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
 
-            <div class="flex justify-end mt-16 px-4 break-inside-avoid">
-                <div class="text-center w-64">
-                    <p class="text-sm">Banjarmasin, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</p>
-                    <p class="text-sm mb-20">Pemohon / Pelapor,</p>
-                    <p class="text-sm font-bold underline uppercase">{{ Auth::user()->name }}</p>
-                    <p class="text-sm">Masyarakat</p>
-                </div>
+            <div class="ttd-area">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 60%;"></td>
+                        <td class="ttd-box">
+                            <p>Banjarmasin, {{ date('d F Y') }}</p>
+                            <p class="jabatan">Pemohon / Pelapor,</p>
+                            <div class="space-ttd"></div>
+                            <p class="nama">{{ strtoupper(Auth::user()->name) }}</p>
+                            <p class="nip">Masyarakat</p>
+                        </td>
+                    </tr>
+                </table>
             </div>
+
         </div>
     </div>
 
-    <script>
-        function openTicketModal(id, tahanan, tgl, jam, kamar, jml) {
-            document.getElementById('modalId').innerText = 'REQ-' + id;
-            document.getElementById('modalTahanan').innerText = tahanan;
-            document.getElementById('modalTgl').innerText = tgl;
-            document.getElementById('modalJam').innerText = 'Dibuat: ' + jam + ' WITA';
-            document.getElementById('modalKamar').innerText = kamar;
-            document.getElementById('modalJml').innerText = jml + ' Orang';
-            document.getElementById('ticketModal').classList.remove('hidden');
-        }
-
-        function closeTicketModal() {
-            document.getElementById('ticketModal').classList.add('hidden');
-        }
-    </script>
-
     <style>
+        /* Sembunyikan Layer Print di Layar Biasa */
+        #print-layer {
+            display: none;
+        }
+
         @media print {
+
+            /* 1. HAPUS HEADER/FOOTER BROWSER (KUNCI UTAMA) */
             @page {
                 margin: 0;
                 size: A4 portrait;
             }
 
+            /* 2. RESET MARGIN BODY */
             body {
-                background: white !important;
-                font-family: 'Times New Roman', serif !important;
-                color: black !important;
-                padding: 2.5cm;
+                margin: 0;
+                padding: 0;
+                background-color: white;
             }
 
+            /* 3. TAMPILKAN PRINT LAYER */
+            #print-layer {
+                display: block !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                z-index: 9999;
+                /* Pastikan background putih menutupi segalanya */
+                background: white;
+            }
+
+            /* 4. ATUR PADDING KERTAS MANUAL (Pengganti Margin @page) */
+            .paper-a4 {
+                width: 100%;
+                /* Padding ini yang memberi jarak aman dari tepi kertas */
+                padding: 1.5cm 2cm;
+                font-family: 'Times New Roman', serif;
+                position: relative;
+            }
+
+            /* Sembunyikan Tampilan Web */
+            .web-view,
             nav,
             header,
-            footer,
-            button,
-            .print\:hidden {
+            footer {
                 display: none !important;
             }
 
-            table {
+            /* Style Elemen Surat */
+            .print-watermark {
+                position: absolute;
+                top: 350px;
+                left: 50%;
+                width: 350px;
+                transform: translateX(-50%);
+                opacity: 0.1;
+                filter: grayscale(100%);
+                z-index: -1;
+            }
+
+            .kop-table {
                 width: 100%;
-                border: 1px solid black;
                 border-collapse: collapse;
+                margin-bottom: 20px;
             }
 
-            th,
-            td {
-                border: 1px solid black !important;
-                padding: 5px;
+            .logo-col {
+                width: 15%;
+                text-align: center;
+                vertical-align: middle;
             }
 
-            img {
-                filter: none !important;
+            .logo-col img {
+                width: 90px;
+                height: auto;
             }
 
-            .print-color-force {
-                color: #166534 !important;
+            .text-col {
+                text-align: center;
+                vertical-align: middle;
+                padding-left: 10px;
+            }
+
+            .kop-1 {
+                font-size: 14pt;
+                font-weight: bold;
+            }
+
+            .kop-2 {
+                font-size: 16pt;
+                font-weight: bold;
+            }
+
+            .kop-3 {
+                font-size: 18pt;
+                font-weight: 900;
+                color: #166534;
                 -webkit-print-color-adjust: exact;
+            }
+
+            .kop-alamat {
+                font-size: 10pt;
+                font-style: italic;
+                margin-top: 5px;
+            }
+
+            .garis-bawah {
+                border-top: 4px double black;
+                height: 5px;
+                margin-top: 10px;
+            }
+
+            .judul-area {
+                text-align: center;
+                margin-bottom: 25px;
+            }
+
+            .judul-area h1 {
+                font-size: 14pt;
+                font-weight: bold;
+                text-decoration: underline;
+                margin: 0;
+            }
+
+            .judul-area p {
+                font-size: 10pt;
+                font-weight: bold;
+                margin-top: 5px;
+                text-transform: uppercase;
+            }
+
+            .print-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 10pt;
+            }
+
+            .print-table th,
+            .print-table td {
+                border: 1px solid black;
+                padding: 6px;
+            }
+
+            .print-table thead th {
+                background-color: #e5e5e5 !important;
+                font-weight: bold;
+                text-align: center;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .center {
+                text-align: center;
+            }
+
+            .uppercase {
+                text-transform: uppercase;
+            }
+
+            .italic {
+                font-style: italic;
+            }
+
+            .ttd-area {
+                margin-top: 50px;
+                page-break-inside: avoid;
+            }
+
+            .ttd-box {
+                text-align: center;
+                width: 40%;
+            }
+
+            .jabatan {
+                margin-bottom: 70px;
+            }
+
+            .nama {
+                font-weight: bold;
+                text-decoration: underline;
+            }
+
+            * {
+                box-shadow: none !important;
+                text-shadow: none !important;
             }
         }
     </style>

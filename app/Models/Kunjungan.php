@@ -11,7 +11,7 @@ class Kunjungan extends Model
 
     protected $fillable = [
         'user_id',
-        'petugas_id', // <--- TAMBAHAN: Agar ID petugas yang memverifikasi bisa disimpan
+        'petugas_id', // PENTING: Untuk menyimpan ID petugas verifikator
         'nama_pengunjung',
         'nik_pengunjung',
         'jenis_kelamin',
@@ -29,17 +29,20 @@ class Kunjungan extends Model
         'keterangan_petugas'
     ];
 
-    // Relasi ke User (Pemohon / Masyarakat)
+    /**
+     * Relasi ke User sebagai Pemohon (Masyarakat)
+     */
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // Relasi ke Petugas (Verifikator)
-    // Ini fungsi BARU yang sangat penting untuk Laporan
+    /**
+     * Relasi ke User sebagai Petugas Verifikator
+     * Fungsi ini yang akan memunculkan nama petugas di laporan
+     */
     public function petugas()
     {
-        // Mengambil data user berdasarkan kolom petugas_id
         return $this->belongsTo(User::class, 'petugas_id');
     }
 }

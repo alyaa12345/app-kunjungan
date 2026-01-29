@@ -41,10 +41,15 @@ Route::middleware(['auth', 'role:kepala'])->prefix('kepala')->name('kepala.')->g
     // Dashboard Kepala
     Route::get('/', [KepalaController::class, 'index'])->name('index');
 
-    // Laporan Evaluasi (Untuk Pimpinan)
+    // Laporan Evaluasi (Halaman Utama)
     Route::get('/laporan', [KepalaController::class, 'laporan'])->name('laporan.index');
-});
 
+    // 1. Route Preview Excel (Lihat dulu sebelum download)
+    Route::get('/laporan/preview', [KepalaController::class, 'previewExcel'])->name('laporan.preview');
+
+    // 2. Route Action Download (Proses unduh file)
+    Route::get('/laporan/download', [KepalaController::class, 'downloadExcel'])->name('laporan.download');
+});
 
 // ====================================================
 // GROUP ROUTE: PETUGAS
@@ -53,7 +58,7 @@ Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')
     // Dashboard & Meja Verifikasi
     Route::get('/', [PetugasController::class, 'index'])->name('index');
 
-    // Proses Verifikasi (Setujui/Tolak) - Menggunakan PUT/PATCH
+    // Proses Verifikasi (Setujui/Tolak)
     Route::put('/verifikasi/{id}', [PetugasController::class, 'updateStatus'])->name('update');
 
     // Riwayat Arsip Lama
@@ -62,13 +67,17 @@ Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')
     // Gate Check (Scanner QR)
     Route::get('/gate-check', [PetugasController::class, 'gateCheck'])->name('gate');
 
-    // Laporan Statistik (Grafik Eksekutif)
+    // Laporan Statistik
     Route::get('/laporan-statistik', [PetugasController::class, 'laporan'])->name('laporan.statistik');
 
-    // [BARU] Laporan Daftar Permohonan (Tabel + Filter Status)
-    // Route ini menghubungkan view petugas.laporan.index dengan controller
+    // Laporan Daftar Permohonan
     Route::get('/laporan-masuk', [PetugasController::class, 'laporan_masuk'])->name('laporan.index');
 });
+
+// ====================================================
+// ROUTE KHUSUS: EXPORT EXCEL (Petugas)
+// ====================================================
+Route::middleware(['auth', 'role:petugas'])->get('/petugas/laporan/excel', [PetugasController::class, 'exportExcel'])->name('laporan.excel');
 
 
 // ====================================================
@@ -86,14 +95,13 @@ Route::middleware(['auth', 'role:masyarakat'])->prefix('masyarakat')->name('masy
     Route::get('/riwayat', [MasyarakatController::class, 'riwayat'])->name('riwayat');
     Route::get('/tiket/{id}', [MasyarakatController::class, 'show'])->name('show');
 
-    // Menu Laporan (Jadwal / Statistik / Dokumen)
-    // Parameter {jenis} menangkap 'jadwal', 'statistik', atau lainnya
-    Route::get('/laporan/{jenis}', [MasyarakatController::class, 'laporan'])->name('laporan');
+    // Laporan Masyarakat
+    Route::get('/laporan', [MasyarakatController::class, 'laporan'])->name('laporan');
 });
 
 
 // ====================================================
-// PROFILE ROUTES (Bawaan Laravel Breeze/Jetstream)
+// PROFILE ROUTES
 // ====================================================
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

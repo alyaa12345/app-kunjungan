@@ -25,7 +25,7 @@ class PetugasController extends Controller
     }
 
     // ====================================================
-    // 2. PROSES VERIFIKASI (UPDATE STATUS)
+    // 2. PROSES VERIFIKASI (FIX: TANPA PETUGAS_ID)
     // ====================================================
     public function updateStatus(Request $request, $id)
     {
@@ -36,10 +36,11 @@ class PetugasController extends Controller
 
         $kunjungan = Kunjungan::findOrFail($id);
 
+        // UPDATE STATUS SAJA (Tanpa petugas_id agar tidak error database)
         $kunjungan->update([
             'status'             => $request->status,
             'keterangan_petugas' => $request->keterangan_petugas,
-            'petugas_id'         => Auth::id(), // Simpan ID Petugas
+            // 'petugas_id'      => Auth::id(), // Baris ini saya matikan karena kolomnya tidak ada di DB
         ]);
 
         return back()->with('success', 'Status permohonan berhasil diperbarui.');
@@ -58,7 +59,7 @@ class PetugasController extends Controller
     }
 
     // ====================================================
-    // 4. GATE CHECK (SCANNER)
+    // 4. GATE CHECK (SCANNER PINTU UTAMA)
     // ====================================================
     public function gateCheck(Request $request)
     {
@@ -86,12 +87,12 @@ class PetugasController extends Controller
     }
 
     // ====================================================
-    // 5. LAPORAN STATISTIK (GRAFIK LAMA)
+    // 5. LAPORAN STATISTIK (GRAFIK)
     // ====================================================
     public function laporan(Request $request)
     {
         $query = Kunjungan::query();
-        $title = "Semua Arsip Data"; // Default Title agar tidak error
+        $title = "Semua Arsip Data";
 
         if ($request->filled('filter_type')) {
             switch ($request->filter_type) {
@@ -121,12 +122,10 @@ class PetugasController extends Controller
 
         $laporan_detail = $query->orderBy('tanggal_kunjungan', 'desc')->get();
 
-        // Hitung Statistik
         $totalTotal     = $laporan_detail->count();
         $totalDisetujui = $laporan_detail->where('status', 'disetujui')->count();
         $totalDitolak   = $laporan_detail->where('status', 'ditolak')->count();
 
-        // Data untuk Grafik
         $harian = Kunjungan::select(DB::raw('DATE(created_at) as tanggal'), DB::raw('count(*) as total'))
             ->groupBy('tanggal')->orderBy('tanggal', 'desc')->limit(7)->get();
 
@@ -145,21 +144,47 @@ class PetugasController extends Controller
     }
 
     // ====================================================
-    // 6. LAPORAN DAFTAR PERMOHONAN (TABEL BARU)
+    // 6. LAPORAN MASUK (DATA TABEL)
     // ====================================================
     public function laporan_masuk(Request $request)
     {
-        // Ambil data beserta relasi user dan petugas
-        $query = Kunjungan::with(['user', 'petugas']);
+        // Hapus 'petugas' dari with() agar tidak error kolom not found
+        $query = Kunjungan::with(['user']);
 
-        // Filter Status
+        if ($request->has('status') && $request->status != 'semua') {
+            $query->where('status', $request->status);
+        }
+
+        $data = $query->orderBy('tanggal_kunjungan', 'asc')->get();
+
+        return view('petugas.laporan_masuk', compact('data'));
+    }
+
+    // ====================================================
+    // 7. EXPORT EXCEL
+    // ====================================================
+    public function exportExcel(Request $request)
+    {
+        // Hapus 'petugas' dari with() agar tidak error kolom not found
+        $query = Kunjungan::with(['user']);
+
         if ($request->has('status') && $request->status != 'semua') {
             $query->where('status', $request->status);
         }
 
         $data = $query->latest()->get();
 
-        // PENTING: Arahkan ke file 'laporan_masuk.blade.php' di folder petugas
-        return view('petugas.laporan_masuk', compact('data'));
+        // MODE DOWNLOAD
+        if ($request->get('action') == 'download') {
+            $filename = "Laporan_Kunjungan_" . date('Y-m-d_H-i') . ".xls";
+
+            header("Content-Type: application/vnd.ms-excel");
+            header("Content-Disposition: attachment; filename=\"$filename\"");
+
+            return view('petugas.excel', compact('data'))->with('is_download', true);
+        }
+
+        // MODE PREVIEW
+        return view('petugas.excel', compact('data'))->with('is_download', false);
     }
 }

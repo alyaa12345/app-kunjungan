@@ -226,7 +226,7 @@
     </div>
 
     <div id="rejectModal" class="fixed inset-0 z-[60] hidden bg-black/80 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 border-t-4 border-red-500 animate-scale-up">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 border-t-4 border-red-500 animate-scale-up">
             <div class="flex items-center gap-3 mb-4 text-red-600">
                 <div class="bg-red-100 p-2 rounded-full">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -239,8 +239,37 @@
             <form id="rejectForm" action="" method="POST">
                 @csrf @method('PUT')
                 <input type="hidden" name="status" value="ditolak">
-                <label class="text-xs font-bold text-slate-500 uppercase block mb-2">Alasan Penolakan</label>
-                <textarea name="keterangan_petugas" class="w-full border-slate-300 rounded-lg text-sm mb-4 focus:ring-red-500 focus:border-red-500 min-h-[100px]" placeholder="Contoh: KTP Buram, Salah Kamar, dll..." required></textarea>
+
+                <div class="mb-3">
+                    <label class="text-xs font-bold text-slate-500 uppercase block mb-2">Pilih Alasan Cepat</label>
+                    <select id="quickReason" onchange="updateReason(this)" class="w-full border-slate-300 rounded-lg text-sm focus:ring-red-500 focus:border-red-500 text-slate-700">
+                        <option value="">-- Pilih Salah Satu --</option>
+
+                        <optgroup label="Masalah Dokumen">
+                            <option value="Foto KTP/Identitas buram atau tidak terbaca. Mohon upload ulang.">Foto KTP Buram/Tidak Jelas</option>
+                            <option value="Data inputan nama/NIK tidak sesuai dengan foto KTP yang dilampirkan.">Data Tidak Sesuai KTP</option>
+                            <option value="Kartu Keluarga (KK) belum dilampirkan sebagai syarat hubungan keluarga.">KK Tidak Dilampirkan</option>
+                        </optgroup>
+
+                        <optgroup label="Masalah Tahanan">
+                            <option value="Tahanan sedang menjalani sidang di Pengadilan Negeri.">Tahanan Sedang Sidang</option>
+                            <option value="Tahanan sedang sakit/isolasi medis.">Tahanan Sakit/Isolasi</option>
+                            <option value="Tahanan sedang dipinjam (Bon) oleh penyidik.">Tahanan Di-Bon Penyidik</option>
+                            <option value="Tahanan sedang menjalani hukuman disiplin (Register F).">Tahanan Kena Sanksi (Reg F)</option>
+                        </optgroup>
+
+                        <optgroup label="Lainnya">
+                            <option value="Kuota kunjungan untuk tahanan ini sudah habis minggu ini.">Kuota Habis</option>
+                            <option value="manual">Lainnya (Ketik Sendiri)</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="text-xs font-bold text-slate-500 uppercase block mb-2">Detail Keterangan</label>
+                    <textarea name="keterangan_petugas" id="reasonText" class="w-full border-slate-300 rounded-lg text-sm focus:ring-red-500 focus:border-red-500 min-h-[100px]" placeholder="Alasan penolakan akan muncul di sini..." required></textarea>
+                    <p class="text-[10px] text-slate-400 mt-1 italic">*Anda tetap bisa mengedit teks di atas.</p>
+                </div>
 
                 <div class="flex justify-end gap-2">
                     <button type="button" onclick="document.getElementById('rejectModal').classList.add('hidden')" class="px-4 py-2 text-sm font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition">Batal</button>
@@ -251,13 +280,14 @@
     </div>
 
     <script>
+        // Fitur Pencarian Tabel
         function searchTable() {
             let input = document.getElementById("searchInput");
             let filter = input.value.toUpperCase();
             let table = document.getElementById("dataTable");
             let tr = table.getElementsByTagName("tr");
-            for (let i = 1; i < tr.length; i++) { // Start from 1 to skip THEAD
-                let td = tr[i].getElementsByTagName("td")[1]; // Kolom ke-2 (Nama Pemohon)
+            for (let i = 1; i < tr.length; i++) {
+                let td = tr[i].getElementsByTagName("td")[1];
                 if (td) {
                     let txtValue = td.textContent || td.innerText;
                     tr[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? "" : "none";
@@ -265,6 +295,7 @@
             }
         }
 
+        // Buka Modal Detail & Approve
         function openVerifyModal(id, vName, vCount, vPurpose, iName, iRoom, date, ktpSrc) {
             document.getElementById('modalVisitorName').innerText = vName;
             document.getElementById('modalVisitorCount').innerText = vCount + " Orang";
@@ -284,16 +315,36 @@
                 noImg.classList.remove('hidden');
             }
 
-            // Update Action URL untuk form
+            // Update URL Action untuk Form Approve & Reject
             let url = "{{ route('petugas.update', ':id') }}".replace(':id', id);
             document.getElementById('modalApproveForm').action = url;
             document.getElementById('rejectForm').action = url;
+
+            // Reset Form Tolak saat buka modal baru
+            document.getElementById('quickReason').value = "";
+            document.getElementById('reasonText').value = "";
 
             document.getElementById('verifyModal').classList.remove('hidden');
         }
 
         function closeVerifyModal() {
             document.getElementById('verifyModal').classList.add('hidden');
+        }
+
+        // LOGIKA OTOMATIS COPY DARI DROPDOWN KE TEXTAREA
+        function updateReason(selectElement) {
+            var textarea = document.getElementById('reasonText');
+            var selectedValue = selectElement.value;
+
+            if (selectedValue === 'manual') {
+                textarea.value = "";
+                textarea.placeholder = "Silakan ketik alasan spesifik di sini...";
+                textarea.focus();
+            } else if (selectedValue !== "") {
+                textarea.value = selectedValue;
+            } else {
+                textarea.value = "";
+            }
         }
     </script>
 </x-app-layout>
