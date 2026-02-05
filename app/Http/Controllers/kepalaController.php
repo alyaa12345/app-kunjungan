@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Kunjungan;
+use App\Models\Survei;      // Model Baru: Survei Kepuasan
 use Carbon\Carbon;
 
 class KepalaController extends Controller
@@ -30,7 +31,8 @@ class KepalaController extends Controller
         ];
 
         // Tabel Aktivitas Terbaru
-        $query = Kunjungan::with(['user', 'petugas'])->latest('updated_at');
+        // PERBAIKAN: Saya hapus 'petugas' dari sini agar tidak error
+        $query = Kunjungan::with(['user'])->latest('updated_at');
 
         if ($request->has('filter') && $request->filter != '') {
             $query->where('status', $request->filter);
@@ -47,7 +49,8 @@ class KepalaController extends Controller
     // ====================================================
     private function getFilteredData(Request $request)
     {
-        $query = Kunjungan::with(['user', 'petugas']);
+        // PERBAIKAN: Saya hapus 'petugas' dari sini juga
+        $query = Kunjungan::with(['user']);
 
         // 1. Filter Status
         if ($request->has('status') && $request->status != 'semua' && $request->status != '') {
@@ -122,5 +125,48 @@ class KepalaController extends Controller
             'data' => $data,
             'isPreview' => false
         ]);
+    }
+    // ====================================================
+    // 11. HALAMAN HASIL SURVEI (FITUR TERPISAH)
+    // ====================================================
+    public function survei()
+    {
+        // Hitung Statistik
+        $rataRataBintang = Survei::avg('bintang') ?? 0;
+        $totalResponden  = Survei::count();
+
+        // Ambil SEMUA data ulasan (terbaru dulu)
+        $semuaUlasan = Survei::with('user')->latest()->get();
+
+        return view('petugas.survei', compact('rataRataBintang', 'totalResponden', 'semuaUlasan'));
+    }
+
+    public function titipan(Request $request)
+    {
+        // PERBAIKAN: Tambahkan ->with('user') agar nama akun pengirim terbaca!
+        $query = \App\Models\Titipan::with('user');
+
+        // Filter Status
+        if ($request->has('status') && $request->status != 'semua') {
+            $query->where('status', $request->status);
+        }
+
+        $data = $query->latest()->paginate(10); // Pakai paginate untuk di layar
+
+        return view('kepala.titipan', compact('data'));
+    }
+
+    public function cetakTitipan(Request $request)
+    {
+        // PERBAIKAN: Tambahkan ->with('user') disini juga
+        $query = \App\Models\Titipan::with('user');
+
+        if ($request->has('status') && $request->status != 'semua') {
+            $query->where('status', $request->status);
+        }
+
+        $data = $query->latest()->get(); // Ambil semua untuk dicetak
+
+        return view('kepala.titipan_cetak', compact('data'));
     }
 }

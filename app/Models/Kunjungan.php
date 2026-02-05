@@ -9,40 +9,26 @@ class Kunjungan extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'petugas_id', // PENTING: Untuk menyimpan ID petugas verifikator
-        'nama_pengunjung',
-        'nik_pengunjung',
-        'jenis_kelamin',
-        'alamat_pengunjung',
-        'hubungan_tahanan',
-        'nama_tahanan',
-        'nomor_kamar',
-        'kasus_tahanan',
-        'tanggal_kunjungan',
-        'jam_kunjungan',
-        'keperluan',
-        'jumlah_pengikut',
-        'foto_ktp',
-        'status',
-        'keterangan_petugas'
-    ];
+    // Nama Tabel di Database
+    protected $table = 'kunjungans';
 
-    /**
-     * Relasi ke User sebagai Pemohon (Masyarakat)
-     */
+    // =================================================================
+    // KUNCI PERBAIKAN:
+    // $guarded = [] artinya "Tidak ada kolom yang dilarang".
+    // Semua data dari Controller (nama_bin, lokasi, nik, dll)
+    // akan DITERIMA dan DISIMPAN oleh Laravel tanpa error.
+    // =================================================================
+    protected $guarded = [];
+
+    // Relasi ke tabel Users (Pengunjung)
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
-    /**
-     * Relasi ke User sebagai Petugas Verifikator
-     * Fungsi ini yang akan memunculkan nama petugas di laporan
-     */
-    public function petugas()
+    // Relasi ke tabel Survei (Untuk fitur ulasan nanti)
+    public function survei()
     {
-        return $this->belongsTo(User::class, 'petugas_id');
+        return $this->hasOne(Survei::class);
     }
 }

@@ -62,7 +62,7 @@
     <div class="container">
         <div class="btn-group">
             <a href="{{ route('petugas.laporan.index') }}" class="btn btn-back">&larr; Kembali</a>
-            <a href="{{ route('laporan.excel', ['action' => 'download']) }}" class="btn btn-download">Download File Excel &darr;</a>
+            <a href="{{ route('petugas.laporan.excel', ['action' => 'download']) }}" class="btn btn-download">Download File Excel &darr;</a>
         </div>
         @endif
 
