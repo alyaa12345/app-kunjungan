@@ -23,7 +23,6 @@
                                 <th class="px-6 py-4">Pengunjung</th>
                                 <th class="px-6 py-4">Tujuan</th>
                                 <th class="px-6 py-4">Status Akhir</th>
-                                <th class="px-6 py-4">Catatan Petugas</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -58,13 +57,10 @@
                                     </span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 text-slate-500 italic">
-                                    {{ $item->keterangan_petugas ?? '-' }}
-                                </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-10 text-center text-slate-400">
+                                <td colspan="4" class="px-6 py-10 text-center text-slate-400">
                                     Belum ada data riwayat kunjungan.
                                 </td>
                             </tr>

@@ -42,7 +42,6 @@
                             <th class="px-6 py-4 w-32">Tanggal</th>
                             <th class="px-6 py-4">Pemohon</th>
                             <th class="px-6 py-4 w-32 text-center">Status</th>
-                            <th class="px-6 py-4 bg-yellow-50/50 text-slate-700 w-48">Verifikator</th>
                             <th class="px-6 py-4 w-32">Waktu</th>
                         </tr>
                     </thead>
@@ -66,14 +65,11 @@
                                 <span class="bg-amber-100 text-amber-700 px-2 py-1 rounded text-[10px] font-bold uppercase border border-amber-200">Menunggu</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 bg-yellow-50/30 font-bold text-slate-700 uppercase italic">
-                                {{ $item->petugas->name ?? '-' }}
-                            </td>
                             <td class="px-6 py-4 text-xs text-slate-500 font-mono">{{ $item->updated_at->format('H:i') }}</td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-slate-400 italic">Tidak ada data untuk filter ini.</td>
+                            <td colspan="5" class="px-6 py-12 text-center text-slate-400 italic">Tidak ada data untuk filter ini.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -116,8 +112,7 @@
                         <th style="width: 5%;">NO</th>
                         <th style="width: 15%;">TANGGAL</th>
                         <th>PEMOHON</th>
-                        <th style="width: 10%;">STATUS</th>
-                        <th>VERIFIKATOR</th>
+                        <th style="width: 15%;">STATUS</th>
                         <th style="width: 10%;">WAKTU</th>
                     </tr>
                 </thead>
@@ -130,7 +125,6 @@
                         <td class="center status-cell {{ $item->status }}">
                             {{ strtoupper($item->status) }}
                         </td>
-                        <td class="center italic">{{ $item->petugas->name ?? '-' }}</td>
                         <td class="center">{{ $item->updated_at->format('H:i') }}</td>
                     </tr>
                     @endforeach

@@ -165,43 +165,43 @@
 
         <table style="width: 100%; margin-bottom: 25px;">
             <tr>
-                <td colspan="7" class="no-border text-center font-serif font-bold" style="font-size: 12pt;">
+                <td colspan="6" class="no-border text-center font-serif font-bold" style="font-size: 12pt;">
                     KEJAKSAAN REPUBLIK INDONESIA
                 </td>
             </tr>
             <tr>
-                <td colspan="7" class="no-border text-center font-serif font-bold" style="font-size: 14pt;">
+                <td colspan="6" class="no-border text-center font-serif font-bold" style="font-size: 14pt;">
                     KEJAKSAAN TINGGI KALIMANTAN SELATAN
                 </td>
             </tr>
             <tr>
-                <td colspan="7" class="no-border text-center font-serif font-bold" style="font-size: 16pt; color: #166534;">
+                <td colspan="6" class="no-border text-center font-serif font-bold" style="font-size: 16pt; color: #166534;">
                     KEJAKSAAN NEGERI BANJARMASIN
                 </td>
             </tr>
             <tr>
-                <td colspan="7" class="no-border text-center font-serif" style="font-size: 10pt; font-style: italic; border-bottom: 3px double #000 !important; padding-bottom: 12px;">
+                <td colspan="6" class="no-border text-center font-serif" style="font-size: 10pt; font-style: italic; border-bottom: 3px double #000 !important; padding-bottom: 12px;">
                     Jl. Brig Jend. Hasan Basri No.3, Pangeran, Kota Banjarmasin, Kalimantan Selatan 70124
                 </td>
             </tr>
             <tr>
-                <td colspan="7" class="no-border" style="height: 15px;"></td>
+                <td colspan="6" class="no-border" style="height: 15px;"></td>
             </tr>
         </table>
 
         <table style="width: 100%; margin-bottom: 15px;">
             <tr>
-                <td colspan="7" class="no-border text-center font-bold" style="font-size: 12pt; text-decoration: underline;">
+                <td colspan="6" class="no-border text-center font-bold" style="font-size: 12pt; text-decoration: underline;">
                     LAPORAN REKAPITULASI KUNJUNGAN
                 </td>
             </tr>
             <tr>
-                <td colspan="7" class="no-border text-center" style="font-size: 10pt;">
+                <td colspan="6" class="no-border text-center" style="font-size: 10pt;">
                     Dicetak pada: {{ \Carbon\Carbon::now()->translatedFormat('d F Y, H:i') }} WITA
                 </td>
             </tr>
             <tr>
-                <td colspan="7" class="no-border" style="height: 10px;"></td>
+                <td colspan="6" class="no-border" style="height: 10px;"></td>
             </tr>
         </table>
 
@@ -213,7 +213,6 @@
                     <th style="width: 220px;">NAMA PENGUNJUNG</th>
                     <th style="width: 160px;">TAHANAN TUJUAN</th>
                     <th style="width: 100px;">STATUS</th>
-                    <th style="width: 160px;">VERIFIKATOR</th>
                     <th style="width: 80px;">WAKTU</th>
                 </tr>
             </thead>
@@ -238,10 +237,6 @@
                         {{ strtoupper($item->status) }}
                     </td>
 
-                    <td class="text-left" style="padding-left: 8px;">
-                        {{ $item->petugas->name ?? '-' }}
-                    </td>
-
                     <td class="text-center">
                         {{ $item->updated_at->format('H:i') }}
                     </td>
@@ -252,10 +247,10 @@
 
         <table style="width: 100%; margin-top: 30px;">
             <tr>
-                <td colspan="7" class="no-border" style="height: 20px;"></td>
+                <td colspan="6" class="no-border" style="height: 20px;"></td>
             </tr>
             <tr>
-                <td colspan="4" class="no-border"></td>
+                <td colspan="3" class="no-border"></td>
 
                 <td colspan="3" class="no-border text-center font-serif" style="font-size: 11pt;">
                     Banjarmasin, {{ date('d F Y') }} <br>
