@@ -1,89 +1,144 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-bold text-xl text-gray-800 leading-tight">
-            {{ __('Hasil Survei Kepuasan Masyarakat') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12 max-w-7xl mx-auto sm:px-6 lg:px-8">
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-
-            <div class="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl shadow-lg p-6 text-white flex items-center justify-between relative overflow-hidden">
-                <div class="z-10">
-                    <p class="text-yellow-100 font-bold uppercase text-sm tracking-wider">Indeks Kepuasan (IKM)</p>
-                    <div class="flex items-end gap-3 mt-2">
-                        <h1 class="text-6xl font-black">{{ number_format($rataRataBintang, 1) }}</h1>
-                        <span class="text-2xl font-bold mb-2">/ 5.0</span>
+        <div class="relative bg-white pt-4 pb-6 overflow-hidden">
+            <div class="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-emerald-50 opacity-50 blur-2xl"></div>
+            <div class="absolute bottom-0 left-0 -ml-8 -mb-8 w-24 h-24 rounded-full bg-amber-50 opacity-50 blur-xl"></div>
+            
+            <div class="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="bg-slate-900 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-md tracking-widest uppercase shadow-sm">
+                            Statistik Publik
+                        </span>
                     </div>
-                    <div class="mt-2 text-xl text-yellow-200">
-                        @for($i=1; $i<=5; $i++)
-                            {{ $i <= round($rataRataBintang) ? '★' : '☆' }}
-                            @endfor
-                            </div>
-                    </div>
-                    <div class="absolute right-4 bottom-[-20px] text-9xl text-white opacity-20 rotate-12">🏆</div>
+                    <h2 class="font-black text-3xl text-slate-800 tracking-tight leading-tight">
+                        Customer Satisfaction Index (CSI)
+                    </h2>
+                    <p class="text-sm text-slate-500 font-medium mt-1">
+                        Hasil survei evaluasi kepuasan masyarakat terhadap sistem pelayanan.
+                    </p>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-8 border-blue-600 flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 font-bold uppercase text-sm">Total Responden</p>
-                        <h1 class="text-5xl font-black text-gray-800 mt-2">{{ $totalResponden }}</h1>
-                        <p class="text-gray-400 text-sm mt-1">Orang Masyarakat</p>
-                    </div>
-                    <div class="bg-blue-100 p-4 rounded-full text-blue-600">
-                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                <!-- Tambahan Tombol Cetak Laporan -->
+                <div class="shrink-0 mt-4 md:mt-0">
+                 <a href="{{ route('petugas.laporan.cetak') }}" target="_blank" class="group inline-flex ...
+                        <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                         </svg>
+                        Cetak Laporan Resmi
+                    </a>
+                </div>
+                <!-- Akhir Tambahan Tombol -->
+
+            </div>
+        </div>
+    </x-slot>
+
+    <div class="py-8 bg-slate-50/50 min-h-screen">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-3xl p-6 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-amber-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
+                    <div class="relative flex items-center justify-between">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Rata-Rata Indeks Kepuasan</h4>
+                            <div class="flex items-end gap-2">
+                                <span class="text-5xl font-black text-slate-800 tracking-tighter">{{ number_format($rataRataBintang, 1) }}</span>
+                                <span class="text-base font-bold text-slate-400 mb-1">/ 5.0</span>
+                            </div>
+                            <div class="flex items-center gap-1 mt-2 text-[#F5C542]">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <svg class="w-4 h-4 {{ $i <= round($rataRataBintang) ? 'fill-current' : 'text-slate-200' }}" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                @endfor
+                            </div>
+                        </div>
+                        <div class="w-16 h-16 bg-gradient-to-br from-amber-400 to-orange-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-amber-200/50 transform group-hover:rotate-12 transition-transform duration-300">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl p-6 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-blue-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
+                    <div class="relative flex items-center justify-between">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Partisipasi Responden</h4>
+                            <div class="flex items-end gap-2">
+                                <span class="text-5xl font-black text-slate-800 tracking-tighter">{{ $totalResponden }}</span>
+                                <span class="text-base font-bold text-slate-400 mb-1">Orang</span>
+                            </div>
+                            <div class="mt-2 text-sm font-medium text-slate-500">
+                                Berhasil memberikan ulasan
+                            </div>
+                        </div>
+                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200/50 transform group-hover:-translate-y-1 transition-transform duration-300">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 border-b border-gray-200">
-                    <h3 class="font-bold text-lg text-gray-800 mb-4">💬 Ulasan & Masukan Terbaru</h3>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left text-gray-500">
-                            <thead class="text-xs text-white uppercase bg-slate-800">
-                                <tr>
-                                    <th class="px-6 py-3 w-40">Tanggal</th>
-                                    <th class="px-6 py-3 w-48">Nama Pengunjung</th>
-                                    <th class="px-6 py-3 w-32 text-center">Rating</th>
-                                    <th class="px-6 py-3">Komentar / Saran</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                @forelse($semuaUlasan as $ulasan)
-                                <tr class="bg-white hover:bg-gray-50 transition">
-                                    <td class="px-6 py-4">
-                                        {{ $ulasan->created_at->format('d M Y') }}<br>
-                                        <span class="text-xs text-gray-400">{{ $ulasan->created_at->format('H:i') }} WITA</span>
-                                    </td>
-                                    <td class="px-6 py-4 font-bold text-gray-900">
-                                        {{ $ulasan->user->name ?? 'Anonim' }}
-                                    </td>
-                                    <td class="px-6 py-4 text-center">
-                                        <div class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-bold inline-flex items-center gap-1">
-                                            <span>{{ $ulasan->bintang }}</span> <span class="text-xs">★</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 italic text-gray-600">
-                                        "{{ $ulasan->komentar }}"
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="4" class="px-6 py-8 text-center text-gray-400">
-                                        Belum ada data survei yang masuk.
-                                    </td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+            <div class="bg-white rounded-3xl shadow-[0_2px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-6 bg-[#F5C542] rounded-full"></div>
+                        <h3 class="text-lg font-extrabold text-slate-800">Catatan Kritik & Saran</h3>
                     </div>
+                    <span class="bg-slate-100 text-slate-500 text-xs font-bold px-3 py-1 rounded-lg">Terbaru</span>
+                </div>
+                
+                <div class="divide-y divide-slate-50">
+                    @forelse($semuaUlasan as $u)
+                    @php
+                        // Logika pembuat Inisial Avatar
+                        $namaLengkap = $u->user->name ?? 'Masyarakat Umum';
+                        $inisial = strtoupper(substr($namaLengkap, 0, 1));
+                    @endphp
+                    <div class="p-6 hover:bg-slate-50/50 transition-colors flex gap-4 sm:gap-5 group">
+                        
+                        <div class="hidden sm:flex shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 border border-slate-200 items-center justify-center font-black text-slate-500 text-lg group-hover:from-blue-100 group-hover:to-blue-50 group-hover:text-blue-600 transition-colors">
+                            {{ $inisial }}
+                        </div>
+
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-4 mb-2">
+                                <div>
+                                    <h5 class="font-bold text-slate-800 text-base truncate">{{ $namaLengkap }}</h5>
+                                    
+                                    <div class="flex items-center gap-1 mt-1 text-[#F5C542]">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <svg class="w-4 h-4 {{ $i <= $u->bintang ? 'fill-current' : 'text-slate-200' }}" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                        @endfor
+                                    </div>
+                                </div>
+                                <span class="text-xs font-semibold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-md shrink-0">
+                                    {{ $u->created_at->diffForHumans() }}
+                                </span>
+                            </div>
+                            
+                            <div class="relative mt-3">
+                                <div class="absolute -top-2 left-4 sm:-left-2 sm:top-2 w-4 h-4 bg-slate-100 rotate-45 hidden sm:block"></div>
+                                
+                                <p class="relative text-sm text-slate-600 font-medium bg-slate-100 p-4 rounded-2xl rounded-tl-none sm:rounded-tl-2xl sm:rounded-bl-none leading-relaxed">
+                                    "{{ $u->ulasan ?? $u->komentar }}"
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                    @empty
+                    <div class="p-16 text-center flex flex-col items-center justify-center bg-slate-50/30">
+                        <div class="w-20 h-20 bg-white shadow-sm border border-slate-100 rounded-full flex items-center justify-center mb-4 text-slate-300">
+                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                        </div>
+                        <h5 class="text-slate-800 font-bold text-lg">Belum Ada Ulasan</h5>
+                        <p class="text-slate-500 text-sm max-w-sm mt-1">Saat ini belum ada data survei atau ulasan masyarakat yang masuk ke dalam sistem.</p>
+                    </div>
+                    @endforelse
                 </div>
             </div>
 
         </div>
+    </div>
 </x-app-layout>

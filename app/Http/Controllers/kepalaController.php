@@ -67,6 +67,16 @@ class KepalaController extends Controller
                 ->whereYear('tanggal_kunjungan', Carbon::now()->year);
         }
 
+        // === TAMBAHAN BARU: Filter Bulan & Tahun Dropdown ===
+        if ($request->filled('bulan')) {
+            $query->whereMonth('tanggal_kunjungan', $request->bulan);
+        }
+
+        if ($request->filled('tahun')) {
+            $query->whereYear('tanggal_kunjungan', $request->tahun);
+        }
+        // =====================================================
+
         // 3. Pencarian
         if ($request->filled('search')) {
             $search = $request->search;
@@ -126,20 +136,7 @@ class KepalaController extends Controller
             'isPreview' => false
         ]);
     }
-    // ====================================================
-    // 11. HALAMAN HASIL SURVEI (FITUR TERPISAH)
-    // ====================================================
-    public function survei()
-    {
-        // Hitung Statistik
-        $rataRataBintang = Survei::avg('bintang') ?? 0;
-        $totalResponden  = Survei::count();
 
-        // Ambil SEMUA data ulasan (terbaru dulu)
-        $semuaUlasan = Survei::with('user')->latest()->get();
-
-        return view('petugas.survei', compact('rataRataBintang', 'totalResponden', 'semuaUlasan'));
-    }
 
     public function titipan(Request $request)
     {
@@ -168,5 +165,28 @@ class KepalaController extends Controller
         $data = $query->latest()->get(); // Ambil semua untuk dicetak
 
         return view('kepala.titipan_cetak', compact('data'));
+    }
+    
+    // ====================================================
+    // 11. HALAMAN HASIL SURVEI (FITUR TERPISAH)
+    // ====================================================
+    public function survei()
+    {
+        // Hitung Statistik
+        $rataRataBintang = Survei::avg('bintang') ?? 0;
+        $totalResponden  = Survei::count();
+
+        // --- TAMBAHAN BARU: Hitung Sentimen Survei ---
+        // Asumsi: Bintang 4-5 = Puas | Bintang 1-3 = Tidak Puas
+        $sentimen = [
+            'puas'       => Survei::where('bintang', '>=', 4)->count(),
+            'tidak_puas' => Survei::where('bintang', '<', 4)->count(),
+        ];
+
+        // Ambil SEMUA data ulasan (terbaru dulu)
+        $semuaUlasan = Survei::with('user')->latest()->get();
+
+        // Tambahkan 'sentimen' ke dalam compact
+        return view('kepala.survei', compact('rataRataBintang', 'totalResponden', 'sentimen', 'semuaUlasan'));
     }
 }

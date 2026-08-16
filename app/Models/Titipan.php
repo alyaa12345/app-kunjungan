@@ -9,7 +9,8 @@ class Titipan extends Model
 {
     use HasFactory;
 
-    protected $guarded = []; // KUNCI: Izinkan semua data masuk (termasuk alasan_penolakan)
+    // KUNCI: Izinkan semua data masuk (termasuk no_tahanan dan alasan_penolakan)
+    protected $guarded = [];
 
     public function user()
     {

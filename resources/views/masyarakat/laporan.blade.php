@@ -46,7 +46,6 @@
                 top: 0;
                 width: 100%;
                 padding: 2cm;
-                /* Padding kertas manual */
                 display: block !important;
                 background: white;
                 font-family: 'Times New Roman', Times, serif;
@@ -158,7 +157,7 @@
             </div>
 
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-2xl border border-slate-200">
-                @if(($kategori == 'kunjungan' && $kunjungans->isEmpty()) || ($kategori == 'titipan' && $titipans->isEmpty()))
+                @if(($kategori == 'kunjungan' && $data_kunjungan->isEmpty()) || ($kategori == 'titipan' && $data_titipan->isEmpty()))
                 <div class="p-16 text-center">
                     <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
                         <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -181,24 +180,24 @@
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             @if($kategori == 'kunjungan')
-                            @foreach($kunjungans as $item)
+                            @foreach($data_kunjungan as $item)
                             <tr class="hover:bg-slate-50">
                                 <td class="px-6 py-4 font-bold">{{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->format('d M Y') }}</td>
                                 <td class="px-6 py-4">{{ $item->nama_tahanan }}</td>
                                 <td class="px-6 py-4">Sesi: {{ $item->jam_kunjungan }} | {{ $item->jumlah_pengikut }} Orang</td>
                                 <td class="px-6 py-4 text-center">
-                                    <button onclick="siapkanTiket('{{ $item->id }}', '{{ $item->nama_tahanan }}', '{{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->translatedFormat('d F Y') }}', '{{ $item->jam_kunjungan }}', '{{ $item->jumlah_pengikut }} Orang', '{{ Auth::user()->name }}', 'kunjungan')" class="bg-[#0f172a] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-800">Cetak Tiket</button>
+                                    <button onclick="siapkanTiket('{{ $item->id }}', '{{ addslashes($item->nama_tahanan) }}', '{{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->translatedFormat('d F Y') }}', '{{ $item->jam_kunjungan }}', '{{ $item->jumlah_pengikut }} Orang', '{{ addslashes(Auth::user()->name) }}', 'kunjungan')" class="bg-[#0f172a] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-800">Cetak Tiket</button>
                                 </td>
                             </tr>
                             @endforeach
                             @else
-                            @foreach($titipans as $item)
+                            @foreach($data_titipan as $item)
                             <tr class="hover:bg-slate-50">
                                 <td class="px-6 py-4 font-bold">{{ $item->created_at->format('d M Y') }}</td>
                                 <td class="px-6 py-4">{{ $item->nama_tahanan }}</td>
                                 <td class="px-6 py-4">{{ $item->jenis_titipan }} - {{ Str::limit($item->deskripsi_barang, 20) }}</td>
                                 <td class="px-6 py-4 text-center">
-                                    <button onclick="siapkanTiket('{{ $item->id }}', '{{ $item->nama_tahanan }}', '{{ $item->created_at->format('d F Y') }}', '-', '{{ $item->jenis_titipan }}', '{{ Auth::user()->name }}', 'titipan')" class="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-50">Unduh Bukti</button>
+                                    <button onclick="siapkanTiket('{{ $item->id }}', '{{ addslashes($item->nama_tahanan) }}', '{{ $item->created_at->format('d F Y') }}', '-', '{{ $item->jenis_titipan }}', '{{ addslashes(Auth::user()->name) }}', 'titipan')" class="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-50">Unduh Bukti</button>
                                 </td>
                             </tr>
                             @endforeach
@@ -246,7 +245,7 @@
 
             // Judul
             contentHTML += '<h3 style="text-align:center; text-decoration:underline; text-transform:uppercase; margin-bottom:20px;">LAPORAN REKAPITULASI {{ $kategori == "kunjungan" ? "KUNJUNGAN" : "TITIPAN BARANG" }}</h3>';
-            contentHTML += '<p><strong>Nama Pengunjung:</strong> {{ Auth::user()->name }}</p>';
+            contentHTML += '<p><strong>Nama Pengunjung:</strong> {{ addslashes(Auth::user()->name) }}</p>';
 
             // Buat Tabel
             contentHTML += '<table class="table-data">';
@@ -254,21 +253,23 @@
             contentHTML += '<tbody>';
 
             @if($kategori == 'kunjungan')
-            @foreach($kunjungans as $index => $item)
+            // MENGGUNAKAN VARIABEL YANG BENAR
+            @foreach($data_kunjungan as $index => $item)
             contentHTML += '<tr>';
             contentHTML += '<td style="text-align:center">{{ $index + 1 }}</td>';
             contentHTML += '<td>{{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->format("d/m/Y") }}</td>';
-            contentHTML += '<td>{{ $item->nama_tahanan }}</td>';
+            contentHTML += '<td>{{ addslashes($item->nama_tahanan) }}</td>';
             contentHTML += '<td>Sesi {{ $item->jam_kunjungan }} ({{ $item->jumlah_pengikut }} Org)</td>';
             contentHTML += '<td style="text-align:center">DISETUJUI</td>';
             contentHTML += '</tr>';
             @endforeach
             @else
-            @foreach($titipans as $index => $item)
+            // MENGGUNAKAN VARIABEL YANG BENAR
+            @foreach($data_titipan as $index => $item)
             contentHTML += '<tr>';
             contentHTML += '<td style="text-align:center">{{ $index + 1 }}</td>';
             contentHTML += '<td>{{ $item->created_at->format("d/m/Y") }}</td>';
-            contentHTML += '<td>{{ $item->nama_tahanan }}</td>';
+            contentHTML += '<td>{{ addslashes($item->nama_tahanan) }}</td>';
             contentHTML += '<td>{{ $item->jenis_titipan }}</td>';
             contentHTML += '<td style="text-align:center">DITERIMA</td>';
             contentHTML += '</tr>';
@@ -322,5 +323,4 @@
             }, 500);
         }
     </script>
-
 </x-app-layout>

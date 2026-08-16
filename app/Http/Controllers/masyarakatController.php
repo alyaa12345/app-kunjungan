@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Kunjungan;
 use App\Models\Titipan;
 use App\Models\Survei;
+use App\Models\Tahanan;
 
 class MasyarakatController extends Controller
 {
@@ -15,20 +16,49 @@ class MasyarakatController extends Controller
     // ====================================================
     public function index()
     {
+        // Mengambil 5 tiket kunjungan terbaru milik user yang login
         $kunjungans = Kunjungan::where('user_id', Auth::id())->latest()->take(5)->get();
-        return view('masyarakat.index', compact('kunjungans'));
+
+        // Mengambil 5 tiket titipan terbaru milik user yang login
+        $titipans = Titipan::where('user_id', Auth::id())->latest()->take(5)->get();
+
+        // Ambil data tahanan agar Javascript di Modal Titipan Barang bisa mencari nomor tahanan
+        $tahanans = Tahanan::where('status', 'Aktif')
+            ->orderBy('nama_tahanan', 'asc')
+            ->get();
+
+        return view('masyarakat.index', compact('kunjungans', 'titipans', 'tahanans'));
     }
 
     // ====================================================
-    // 2. FORMULIR PENGAJUAN KUNJUNGAN
+    // 2. FORMULIR PENGAJUAN (KUNJUNGAN)
     // ====================================================
     public function create()
     {
-        return view('masyarakat.create');
+        // AMBIL SEMUA DATA BIAR KOLOM 'PASAL' ATAU APAPUN NAMANYA PASTI KETEMU
+        $tahanans = Tahanan::where('status', 'Aktif')
+            ->orderBy('nama_tahanan', 'asc')
+            ->get();
+
+        return view('masyarakat.create', compact('tahanans'));
     }
 
     // ====================================================
-    // 3. CEK KUOTA (SISTEM REAL-TIME)
+    // 3. PENCARIAN TAHANAN (API BACKUP)
+    // ====================================================
+    public function cariTahanan(Request $request)
+    {
+        $keyword = $request->input('q');
+        $data = Tahanan::where('status', 'Aktif')
+            ->where('nama_tahanan', 'LIKE', "%{$keyword}%")
+            ->limit(10)
+            ->get();
+
+        return response()->json($data);
+    }
+
+    // ====================================================
+    // 4. CEK KUOTA
     // ====================================================
     public function checkQuota(Request $request)
     {
@@ -54,21 +84,20 @@ class MasyarakatController extends Controller
     }
 
     // ====================================================
-    // 4. SIMPAN DATA KUNJUNGAN
+    // 5. SIMPAN DATA KUNJUNGAN
     // ====================================================
     public function store(Request $request)
     {
-        // A. Validasi Input
+        // Tambahkan no_tahanan pada validasi
         $request->validate([
             'nama_pengunjung'   => 'required',
             'nik_pengunjung'    => 'required',
             'jenis_kelamin'     => 'required',
             'alamat_pengunjung' => 'required',
             'hubungan_tahanan'  => 'required',
+            'no_tahanan'        => 'required',
             'nama_tahanan'      => 'required',
-            'nama_bin'          => 'required',
-            'lokasi_tahanan'    => 'required', // Blok Kamar
-            // 'detail_kamar' bisa null/opsional tergantung form, jadi tidak di-required keras
+            'lokasi_tahanan'    => 'required',
             'kasus_tahanan'     => 'required',
             'tanggal_kunjungan' => 'required|date|after_or_equal:today',
             'jam_kunjungan'     => 'required',
@@ -76,39 +105,25 @@ class MasyarakatController extends Controller
             'foto_ktp'          => 'required|image|max:2048',
         ]);
 
-        // B. Upload Foto KTP
         $path = $request->file('foto_ktp')->store('ktp_uploads', 'public');
 
-        // C. Simpan ke Database
-        // Pastikan nama kolom di kiri sesuai dengan migration database Anda!
         Kunjungan::create([
             'user_id'           => Auth::id(),
-
-            // Data Pengunjung
             'nama_pengunjung'   => $request->nama_pengunjung,
             'nik_pengunjung'    => $request->nik_pengunjung,
             'jenis_kelamin'     => $request->jenis_kelamin,
             'alamat_pengunjung' => $request->alamat_pengunjung,
             'hubungan_tahanan'  => $request->hubungan_tahanan,
-
-            // Data Tahanan
+            'no_tahanan'        => $request->no_tahanan,
             'nama_tahanan'      => $request->nama_tahanan,
-            'nama_bin'          => $request->nama_bin,
+            'nama_bin'          => '-',
             'lokasi_tahanan'    => $request->lokasi_tahanan,
-
-            // PENANGANAN KHUSUS ERROR 1364 (NOMOR KAMAR)
-            // Kita kirim data ke 'nomor_kamar' ATAU 'detail_kamar' sesuai inputan form.
-            // Jika di DB kolomnya 'nomor_kamar', dia ambil value. Jika 'detail_kamar', dia ambil value.
-            'nomor_kamar'       => $request->detail_kamar ?? $request->nomor_kamar ?? '-',
-            'detail_kamar'      => $request->detail_kamar ?? $request->nomor_kamar ?? '-',
-
+            'detail_kamar'      => '-',
             'kasus_tahanan'     => $request->kasus_tahanan,
-
-            // Data Kunjungan
             'tanggal_kunjungan' => $request->tanggal_kunjungan,
             'jam_kunjungan'     => $request->jam_kunjungan,
             'jumlah_pengikut'   => $request->jumlah_pengikut,
-            'keperluan'         => $request->keperluan ?? 'Kunjungan Rutin', // Default value jika kosong
+            'keperluan'         => $request->keperluan ?? 'Kunjungan Rutin',
             'catatan'           => $request->catatan,
             'foto_ktp'          => $path,
             'status'            => 'menunggu'
@@ -118,12 +133,83 @@ class MasyarakatController extends Controller
     }
 
     // ====================================================
-    // 5. RIWAYAT KUNJUNGAN & TITIPAN
+    // 6. EDIT & UPDATE DATA KUNJUNGAN
+    // ====================================================
+    public function edit($id)
+    {
+        $kunjungan = Kunjungan::where('user_id', Auth::id())->findOrFail($id);
+
+        // Proteksi: Hanya bisa diedit jika belum disetujui
+        if (!in_array(strtolower($kunjungan->status), ['menunggu', 'ditolak'])) {
+            return redirect()->route('masyarakat.index')->with('error', 'Akses ditolak! Tiket ini sudah disetujui atau diproses.');
+        }
+
+        $tahanans = Tahanan::where('status', 'Aktif')
+            ->orderBy('nama_tahanan', 'asc')
+            ->get();
+
+        return view('masyarakat.edit', compact('kunjungan', 'tahanans'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $kunjungan = Kunjungan::where('user_id', Auth::id())->findOrFail($id);
+
+        if (!in_array(strtolower($kunjungan->status), ['menunggu', 'ditolak'])) {
+            return redirect()->route('masyarakat.index')->with('error', 'Akses ditolak! Tiket ini tidak bisa diperbarui.');
+        }
+
+        $request->validate([
+            'nama_pengunjung'   => 'required',
+            'nik_pengunjung'    => 'required',
+            'jenis_kelamin'     => 'required',
+            'alamat_pengunjung' => 'required',
+            'hubungan_tahanan'  => 'required',
+            'no_tahanan'        => 'required',
+            'nama_tahanan'      => 'required',
+            'lokasi_tahanan'    => 'required',
+            'kasus_tahanan'     => 'required',
+            'tanggal_kunjungan' => 'required|date|after_or_equal:today',
+            'jam_kunjungan'     => 'required',
+            'jumlah_pengikut'   => 'required|integer|max:5',
+            'foto_ktp'          => 'nullable|image|max:2048', // Boleh kosong jika tidak mau ganti KTP
+        ]);
+
+        $data_update = [
+            'nama_pengunjung'   => $request->nama_pengunjung,
+            'nik_pengunjung'    => $request->nik_pengunjung,
+            'jenis_kelamin'     => $request->jenis_kelamin,
+            'alamat_pengunjung' => $request->alamat_pengunjung,
+            'hubungan_tahanan'  => $request->hubungan_tahanan,
+            'no_tahanan'        => $request->no_tahanan,
+            'nama_tahanan'      => $request->nama_tahanan,
+            'lokasi_tahanan'    => $request->lokasi_tahanan,
+            'kasus_tahanan'     => $request->kasus_tahanan,
+            'tanggal_kunjungan' => $request->tanggal_kunjungan,
+            'jam_kunjungan'     => $request->jam_kunjungan,
+            'jumlah_pengikut'   => $request->jumlah_pengikut,
+            'keperluan'         => $request->keperluan ?? 'Kunjungan Rutin',
+            'catatan'           => $request->catatan,
+            'status'            => 'menunggu' // Status dikembalikan jadi menunggu untuk verifikasi ulang
+        ];
+
+        // Jika user upload KTP baru
+        if ($request->hasFile('foto_ktp')) {
+            $path = $request->file('foto_ktp')->store('ktp_uploads', 'public');
+            $data_update['foto_ktp'] = $path;
+        }
+
+        $kunjungan->update($data_update);
+
+        return redirect()->route('masyarakat.index')->with('success', 'Permohonan Berhasil Diperbarui!');
+    }
+
+    // ====================================================
+    // FITUR LAINNYA
     // ====================================================
     public function riwayat(Request $request)
     {
         $kategori = $request->get('kategori', 'kunjungan');
-
         if ($kategori == 'titipan') {
             $titipans = Titipan::where('user_id', Auth::id())->latest()->get();
             $kunjungans = collect();
@@ -131,31 +217,10 @@ class MasyarakatController extends Controller
             $kunjungans = Kunjungan::where('user_id', Auth::id())->latest()->get();
             $titipans = collect();
         }
-
         return view('masyarakat.riwayat', compact('kunjungans', 'titipans', 'kategori'));
     }
 
-    // ====================================================
-    // 6. LAPORAN (BUKTI & TIKET)
-    // ====================================================
-    public function laporan(Request $request)
-    {
-        $kategori = $request->get('kategori', 'kunjungan');
 
-        if ($kategori == 'titipan') {
-            $titipans = Titipan::where('user_id', Auth::id())->where('status', 'diterima')->latest()->get();
-            $kunjungans = collect();
-        } else {
-            $kunjungans = Kunjungan::where('user_id', Auth::id())->where('status', 'disetujui')->latest()->get();
-            $titipans = collect();
-        }
-
-        return view('masyarakat.laporan', compact('kunjungans', 'titipans', 'kategori'));
-    }
-
-    // ====================================================
-    // 7. DETAIL KUNJUNGAN
-    // ====================================================
     public function show($id)
     {
         $kunjungan = Kunjungan::where('user_id', Auth::id())->findOrFail($id);
@@ -163,51 +228,81 @@ class MasyarakatController extends Controller
     }
 
     // ====================================================
-    // 8. HALAMAN BERI ULASAN (SURVEI)
+    // ULASAN & SURVEI CSI
     // ====================================================
+
     public function ulasan()
     {
-        // Cari kunjungan yang SUDAH DISETUJUI tapi BELUM DINILAI (doesntHave survei)
         $belumDinilai = Kunjungan::where('user_id', Auth::id())
             ->where('status', 'disetujui')
-            ->doesntHave('survei') // Pastikan relasi 'survei' ada di model Kunjungan
+            ->doesntHave('survei')
             ->get();
-
         return view('masyarakat.ulasan', compact('belumDinilai'));
     }
 
     public function simpanSurvei(Request $request)
     {
-        // 1. Validasi Input (Pastikan 3 skor ini terisi angka 1-5)
+        // 1. Validasi 6 Indikator CSI yang dikirim dari form
         $request->validate([
             'kunjungan_id'    => 'required|exists:kunjungans,id',
-            'skor_pelayanan'  => 'required|integer|min:1|max:5',
-            'skor_kebersihan' => 'required|integer|min:1|max:5',
+            'skor_sistem'     => 'required|integer|min:1|max:5',
+            'skor_waktu'      => 'required|integer|min:1|max:5',
+            'skor_petugas'    => 'required|integer|min:1|max:5',
+            'skor_informasi'  => 'required|integer|min:1|max:5',
             'skor_fasilitas'  => 'required|integer|min:1|max:5',
+            'skor_kebersihan' => 'required|integer|min:1|max:5',
             'komentar'        => 'nullable|string'
         ]);
 
-        // 2. Hitung Rata-Rata Otomatis
-        // Contoh: Pelayanan(5) + Kebersihan(4) + Fasilitas(5) = 14 / 3 = 4.6 (Dibulatkan jadi 5 Bintang)
-        $totalSkor = $request->skor_pelayanan + $request->skor_kebersihan + $request->skor_fasilitas;
-        $rataRata  = round($totalSkor / 3);
+        // 2. Hitung nilai rata-rata dari ke-6 aspek tersebut
+        $rataRata = round((
+            $request->skor_sistem +
+            $request->skor_waktu +
+            $request->skor_petugas +
+            $request->skor_informasi +
+            $request->skor_fasilitas +
+            $request->skor_kebersihan
+        ) / 6);
 
-        // 3. Simpan ke Database
+        // 3. Simpan hanya nilai rata-ratanya ke kolom 'bintang' 
         Survei::create([
             'user_id'         => Auth::id(),
             'kunjungan_id'    => $request->kunjungan_id,
-
-            // Simpan detail penilaian
-            'skor_pelayanan'  => $request->skor_pelayanan,
-            'skor_kebersihan' => $request->skor_kebersihan,
-            'skor_fasilitas'  => $request->skor_fasilitas,
-
-            // Simpan hasil rata-rata ke kolom 'bintang' (biar dashboard petugas tetap jalan)
             'bintang'         => $rataRata,
-
             'komentar'        => $request->komentar
         ]);
 
+        // 4. Munculkan notifikasi sukses
         return redirect()->back()->with('success', 'Terima kasih! Penilaian Anda telah kami terima.');
+    }
+    
+    // ====================================================
+    // CETAK SURAT TITIPAN OLEH MASYARAKAT
+    // ====================================================
+    public function cetakTitipan($id)
+    {
+        $titipan = \App\Models\Titipan::with('user')
+            ->where('id', $id)
+            ->where('user_id', \Illuminate\Support\Facades\Auth::id())
+            ->firstOrFail();
+
+        return view('petugas.cetak_titipan', compact('titipan'));
+    }
+
+    public function laporan(\Illuminate\Http\Request $request)
+    {
+        $kategori = $request->input('kategori', 'kunjungan');
+
+        $data_kunjungan = \App\Models\Kunjungan::where('user_id', \Illuminate\Support\Facades\Auth::id())
+            ->whereIn('status', ['disetujui', 'selesai'])
+            ->latest()
+            ->get();
+
+        $data_titipan = \App\Models\Titipan::where('user_id', \Illuminate\Support\Facades\Auth::id())
+            ->whereIn('status', ['disetujui', 'selesai'])
+            ->latest()
+            ->get();
+
+        return view('masyarakat.laporan', compact('data_kunjungan', 'data_titipan', 'kategori'));
     }
 }

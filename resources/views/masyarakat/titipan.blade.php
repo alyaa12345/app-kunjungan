@@ -59,21 +59,35 @@
 
                     <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
 
+                        {{-- BAGIAN TUJUAN (AUTOFILL) --}}
                         <div class="space-y-6">
                             <h4 class="text-sm uppercase tracking-wider text-slate-500 font-bold border-b border-slate-100 pb-2">Tujuan Pengiriman</h4>
 
-                            <div>
-                                <label class="block text-sm font-bold text-slate-700 mb-2">Nama Tahanan Penerima <span class="text-red-500">*</span></label>
-                                <input type="text" name="nama_tahanan" class="w-full rounded-xl border-slate-300 focus:border-[#0f172a] focus:ring-[#0f172a] shadow-sm transition" placeholder="Contoh: Budi Bin Suparman" required>
+                            <div class="relative">
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Nomor Tahanan <span class="text-red-500">*</span></label>
+                                <input type="text"
+                                    id="inputNoTahanan"
+                                    name="no_tahanan"
+                                    class="w-full rounded-xl border-slate-300 focus:border-[#0f172a] focus:ring-[#0f172a] shadow-sm transition"
+                                    placeholder="Ketik Nomor Lengkap (Contoh: T-6578)"
+                                    autocomplete="off"
+                                    onkeyup="cariTahanan(this.value)"
+                                    required>
+                                <p id="pesanValidasi" class="text-xs mt-1 font-bold h-4 text-blue-500">Ketik nomor tahanan secara lengkap untuk mencari.</p>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-bold text-slate-700 mb-2">Blok / Kamar (Opsional)</label>
-                                <input type="text" name="blok_kamar" class="w-full rounded-xl border-slate-300 focus:border-[#0f172a] focus:ring-[#0f172a] shadow-sm transition" placeholder="Contoh: Blok A - 12">
-                                <p class="text-[10px] text-slate-400 mt-1">Isi jika Anda mengetahui posisi kamar tahanan.</p>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Nama Tahanan Penerima <span class="text-red-500">*</span></label>
+                                <input type="text" id="nama_tahanan" name="nama_tahanan" class="w-full rounded-xl border-slate-300 bg-slate-50 text-slate-600 focus:ring-0 shadow-sm transition-colors pointer-events-none" placeholder="Akan terisi otomatis..." required readonly tabindex="-1">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Lokasi Penahanan</label>
+                                <input type="text" id="lokasi_tahanan" class="w-full rounded-xl border-slate-300 bg-slate-50 text-slate-600 focus:ring-0 shadow-sm transition-colors pointer-events-none" placeholder="Akan terisi otomatis..." readonly tabindex="-1">
                             </div>
                         </div>
 
+                        {{-- BAGIAN BARANG --}}
                         <div class="space-y-6">
                             <h4 class="text-sm uppercase tracking-wider text-slate-500 font-bold border-b border-slate-100 pb-2">Rincian Barang</h4>
 
@@ -136,4 +150,71 @@
 
         </div>
     </div>
+
+    {{-- SCRIPT JAVASCRIPT --}}
+    <script>
+        // Ambil data tahanan dari controller dan ubah ke format JSON
+        const activePrisoners = @json($tahanans ?? []);
+
+        // SCRIPT PENCARIAN STRICT MODE
+        function cariTahanan(keyword) {
+            let pesan = document.getElementById('pesanValidasi');
+            let inputNo = document.getElementById('inputNoTahanan');
+
+            let namaInput = document.getElementById('nama_tahanan');
+            let lokasiInput = document.getElementById('lokasi_tahanan');
+
+            // Reset UI Style
+            inputNo.classList.remove('border-green-500', 'ring-green-500', 'border-red-500');
+
+            if (keyword.trim() === "") {
+                pesan.innerHTML = "Ketik nomor tahanan secara lengkap untuk mencari.";
+                pesan.className = "text-xs mt-1 text-blue-500 font-bold h-4";
+
+                if (namaInput) {
+                    namaInput.value = "";
+                    namaInput.classList.remove('bg-green-100', 'font-bold', 'text-green-800');
+                }
+                if (lokasiInput) {
+                    lokasiInput.value = "";
+                    lokasiInput.classList.remove('bg-green-100', 'font-bold', 'text-green-800');
+                }
+                return;
+            }
+
+            // EXACT MATCH NUMBER
+            let match = activePrisoners.find(t =>
+                t.no_tahanan && t.no_tahanan.toLowerCase() === keyword.toLowerCase().trim()
+            );
+
+            if (match) {
+                pesan.innerHTML = "✅ Nomor Ditemukan (Data Terisi)";
+                pesan.className = "text-xs mt-1 text-green-600 font-bold h-4";
+                inputNo.classList.add('border-green-500', 'ring-green-500');
+
+                if (namaInput && match.nama_tahanan) {
+                    namaInput.value = match.nama_tahanan;
+                    namaInput.classList.add('bg-green-100', 'font-bold', 'text-green-800');
+                }
+
+                if (lokasiInput && match.lokasi_tahanan) {
+                    lokasiInput.value = match.lokasi_tahanan;
+                    lokasiInput.classList.add('bg-green-100', 'font-bold', 'text-green-800');
+                }
+            } else {
+                pesan.innerHTML = "❌ Data tidak ditemukan. Pastikan ketik lengkap!";
+                pesan.className = "text-xs mt-1 text-red-600 font-bold h-4";
+                inputNo.classList.add('border-red-500');
+
+                if (namaInput) {
+                    namaInput.value = "";
+                    namaInput.classList.remove('bg-green-100', 'font-bold', 'text-green-800');
+                }
+                if (lokasiInput) {
+                    lokasiInput.value = "";
+                    lokasiInput.classList.remove('bg-green-100', 'font-bold', 'text-green-800');
+                }
+            }
+        }
+    </script>
 </x-app-layout>

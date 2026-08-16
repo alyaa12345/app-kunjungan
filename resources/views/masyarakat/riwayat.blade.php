@@ -91,24 +91,25 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-slate-500">{{ $item->jumlah_pengikut }} Orang</td>
+                                
                                 <td class="px-6 py-4">
-                                    @if($item->status == 'menunggu')
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 border border-yellow-200 shadow-sm">
-                                        <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span> PROSES
-                                    </span>
-                                    @elseif($item->status == 'disetujui')
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-sm">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        DISETUJUI
-                                    </span>
+                                    @if(in_array(strtolower($item->status), ['diajukan', 'menunggu']))
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 border border-yellow-200 shadow-sm">
+                                            <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span> PROSES
+                                        </span>
+                                    @elseif(in_array(strtolower($item->status), ['disetujui', 'selesai']))
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-sm">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            {{ strtoupper($item->status) }} </span>
                                     @else
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200 shadow-sm">
-                                        DITOLAK
-                                    </span>
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200 shadow-sm">
+                                            DITOLAK
+                                        </span>
                                     @endif
                                 </td>
+
                                 <td class="px-6 py-4 text-center">
                                     <a href="{{ route('masyarakat.show', $item->id) }}" class="text-[#0f172a] hover:text-blue-600 hover:bg-blue-100 p-2 rounded-lg transition inline-block" title="Lihat Detail">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,6 +125,7 @@
                 </div>
                 @endif
             </div>
+
 
             @elseif($kategori == 'titipan')
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-2xl border border-slate-200">
@@ -164,7 +166,8 @@
                                 <th class="px-6 py-4">Penerima (Tahanan)</th>
                                 <th class="px-6 py-4">Rincian Barang</th>
                                 <th class="px-6 py-4">Foto</th>
-                                <th class="px-6 py-4 rounded-tr-lg">Status</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4 text-center rounded-tr-lg">Surat Label</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -188,26 +191,39 @@
                                     </a>
                                 </td>
                                 <td class="px-6 py-4">
-                                    @if($item->status == 'diajukan')
+                                    @if(in_array(strtolower($item->status), ['diajukan', 'menunggu']))
                                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 border border-yellow-200 shadow-sm">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
                                         MENUNGGU
                                     </span>
-                                    @elseif($item->status == 'diterima')
+                                    @elseif(in_array(strtolower($item->status), ['disetujui', 'diterima', 'selesai']))
                                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-sm">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                                         </svg>
-                                        DITERIMA PETUGAS
-                                    </span>
+                                        {{ strtoupper($item->status) }} </span>
                                     @else
                                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200 shadow-sm">
                                         DITOLAK
                                     </span>
                                     @endif
                                 </td>
+
+                                <td class="px-6 py-4 text-center">
+                                    @if(in_array(strtolower($item->status), ['disetujui', 'diterima', 'selesai']))
+                                    <a href="{{ route('masyarakat.titipan.cetak', $item->id) }}" target="_blank" class="bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-slate-700 inline-flex items-center gap-2 shadow-sm transition">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                                        </svg>
+                                        Cetak Surat
+                                    </a>
+                                    @else
+                                    <span class="text-xs text-slate-400 italic">Belum tersedia</span>
+                                    @endif
+                                </td>
+
                             </tr>
                             @endforeach
                         </tbody>

@@ -29,6 +29,15 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // ---------------------------------------------------------
+        // CEK ROLE SETELAH LOGIN BERHASIL
+        // ---------------------------------------------------------
+        if (Auth::user()->role === 'petugas_lapas') {
+            // Arahkan ke dashboard khusus Penjaga Lapas
+            return redirect()->intended(route('lapas.dashboard'));
+        }
+
+        // Arahkan ke dashboard standar untuk Kejaksaan / Masyarakat
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 

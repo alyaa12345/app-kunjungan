@@ -1,125 +1,212 @@
 <x-app-layout>
-    <div class="min-h-screen bg-[#F1F5F9] font-sans pb-20">
+    <x-slot name="header">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white pt-2 pb-4">
+            <div>
+                <span class="bg-amber-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-md tracking-widest uppercase shadow-sm">
+                    Mode Kejaksaan
+                </span>
+                <h2 class="font-bold text-2xl text-slate-900 leading-tight mt-2">
+                    Ruang Kerja Admin
+                </h2>
+                <p class="text-sm text-slate-500 font-medium mt-1">
+                    Pusat verifikasi legalitas izin kunjungan dan pengelolaan master data.
+                </p>
+            </div>
 
-        <div class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-30">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div class="flex-1 w-full">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="px-2 py-0.5 rounded bg-[#0f172a] text-[#F5C542] text-[10px] font-bold uppercase tracking-widest border border-slate-700">
-                                Mode Admin
-                            </span>
-                        </div>
-                        <h1 class="text-2xl font-serif font-bold text-slate-800">Meja Verifikasi</h1>
-                        <p class="text-sm text-slate-500">Validasi data pemohon sebelum masuk ke Gate.</p>
-                    </div>
-
-                    <div class="relative w-full md:w-72">
-                        <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Cari Nama Pengunjung..."
-                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#F5C542] focus:border-[#F5C542] text-sm shadow-sm transition-all bg-white">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
-                        </div>
-                    </div>
+            <div class="flex items-center gap-3 bg-slate-50 p-1.5 rounded-2xl border border-slate-200">
+                <div class="px-4 py-2 text-center">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Menunggu</div>
+                    <div class="text-xl font-black text-amber-600 leading-none mt-1">{{ $menungguVerifikasi ?? 0 }}</div>
+                </div>
+                <div class="w-px h-8 bg-slate-200"></div>
+                <div class="px-4 py-2 text-center">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Disetujui Hari Ini</div>
+                    <div class="text-xl font-black text-emerald-600 leading-none mt-1">{{ $totalKunjungan ?? 0 }}</div>
                 </div>
             </div>
         </div>
+    </x-slot>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+    <div class="py-8 bg-slate-50 min-h-screen">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             @if(session('success'))
-            <div class="mb-6 rounded-xl bg-emerald-50 border-l-4 border-emerald-500 p-4 text-emerald-800 shadow-sm flex justify-between items-center animate-fade-in-down">
-                <div class="flex items-center gap-3">
-                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            <div class="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r shadow-sm mb-6 flex items-center gap-3">
+                <div class="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
-                    <span class="font-bold text-sm">{{ session('success') }}</span>
                 </div>
-                <button onclick="this.parentElement.remove()" class="text-emerald-600 hover:text-emerald-800">&times;</button>
+                <p class="font-bold text-emerald-800 text-sm">{{ session('success') }}</p>
             </div>
             @endif
 
-            <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden min-h-[400px]">
-                <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                        <h3 class="font-bold text-slate-700">Antrian Menunggu Verifikasi</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <a href="#" class="block bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between group hover:border-amber-400 hover:shadow-md transition-all cursor-pointer relative overflow-hidden">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Verifikasi Izin</h3>
+                            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Permohonan Kunjungan</p>
+                        </div>
                     </div>
-                    <span class="bg-[#0f172a] text-white border border-slate-700 px-3 py-1 rounded-lg text-xs font-bold shadow-sm">
-                        Total: {{ $kunjungans->count() }}
-                    </span>
+                </a>
+
+                <a href="{{ url('/petugas/tahanan') }}" class="block bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between group hover:border-blue-400 hover:shadow-md transition-all cursor-pointer relative overflow-hidden">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Master Tahanan</h3>
+                            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Kelola Data Warga Binaan</p>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="{{ url('/petugas/laporan') }}" class="block bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between group hover:border-emerald-400 hover:shadow-md transition-all cursor-pointer relative overflow-hidden">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 011.414.586l4 4a1 1 0 01.586 1.414V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Laporan & Survei</h3>
+                            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Rekapitulasi & Nilai CSI</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mt-8">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white">
+                    <div>
+                        <h3 class="text-[15px] font-extrabold text-slate-800 tracking-wide">Permohonan Izin Masuk</h3>
+                        <p class="text-xs text-slate-500 mt-1 font-medium">Membutuhkan verifikasi legalitas segera.</p>
+                    </div>
+                    <span class="bg-amber-100 text-amber-700 border border-amber-200 text-[11px] font-bold px-3 py-1.5 rounded-full tracking-wide">Perlu Diproses: {{ $kunjungans->count() }}</span>
                 </div>
 
                 @if($kunjungans->isEmpty())
-                <div class="flex flex-col items-center justify-center py-20 text-center">
-                    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100">
+                <div class="p-20 flex flex-col items-center justify-center text-center bg-slate-50/50">
+                    <div class="w-20 h-20 bg-white shadow-sm border border-slate-100 rounded-full flex items-center justify-center mb-5">
                         <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                         </svg>
                     </div>
-                    <h4 class="font-bold text-slate-700">Semua Bersih!</h4>
-                    <p class="text-sm text-slate-500 mt-1">Tidak ada permohonan baru yang perlu diverifikasi.</p>
+                    <h4 class="font-black text-slate-700 text-xl tracking-wide">Meja Kerja Bersih!</h4>
+                    <p class="text-sm text-slate-500 mt-2 max-w-md">Tidak ada permohonan kunjungan baru yang menunggu verifikasi legalitas dari Kejaksaan saat ini.</p>
                 </div>
                 @else
                 <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left" id="dataTable">
-                        <thead class="bg-slate-100 text-slate-500 uppercase text-xs font-bold">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider">
                             <tr>
-                                <th class="px-6 py-4">Tiket & Tanggal</th>
-                                <th class="px-6 py-4">Data Pemohon</th>
-                                <th class="px-6 py-4">Tujuan Kunjungan</th>
-                                <th class="px-6 py-4 text-center">Aksi</th>
+                                <th class="p-4 font-bold">Pemohon / Tanggal</th>
+                                <th class="p-4 font-bold">Detail Tahanan</th>
+                                <th class="p-4 font-bold">KTP & Pengikut</th>
+                                <th class="p-4 font-bold text-center">Aksi Verifikasi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             @foreach($kunjungans as $item)
-                            <tr class="hover:bg-blue-50/40 transition-colors group">
-                                <td class="px-6 py-4">
-                                    <div class="font-bold text-slate-800">{{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->format('d M Y') }}</div>
-                                    <div class="inline-block bg-slate-100 text-slate-500 text-[10px] font-mono font-bold px-2 py-0.5 rounded border border-slate-200 mt-1 group-hover:border-blue-200 group-hover:text-blue-600 transition">
-                                        #REQ-{{ $item->id }}
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="font-bold text-slate-800 text-base uppercase">
-                                        {{ $item->user->name ?? 'Guest' }}
-                                    </div>
-                                    <div class="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                        </svg>
-                                        Membawa {{ $item->jumlah_pengikut }} Anggota
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded bg-[#0f172a] text-white flex items-center justify-center font-bold text-xs">
-                                            {{ substr($item->nama_tahanan, 0, 1) }}
-                                        </div>
-                                        <div>
-                                            <div class="font-bold text-slate-800 uppercase">{{ $item->nama_tahanan }}</div>
-                                            <div class="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded inline-block mt-0.5">Kamar: {{ $item->nomor_kamar }}</div>
+                            <tr class="hover:bg-slate-50/50 transition">
+                                <td class="p-4">
+                                    <div class="flex flex-col">
+                                        <span class="font-black text-slate-800 text-sm">{{ $item->nama_pengunjung }}</span>
+                                        <span class="text-xs text-slate-500 mt-0.5">NIK: {{ $item->nik_pengunjung }}</span>
+                                        <div class="mt-2 flex items-center gap-1">
+                                            <svg class="w-3 h-3 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            </svg>
+                                            <span class="text-xs font-bold text-amber-600">{{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->format('d M Y') }}</span>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-center">
-                                    <button onclick="openVerifyModal(
-                                        '{{ $item->id }}', 
-                                        '{{ addslashes($item->user->name ?? $item->nama_pengunjung) }}', 
-                                        '{{ $item->jumlah_pengikut }}', 
-                                        '{{ addslashes($item->keperluan) }}', 
-                                        '{{ addslashes($item->nama_tahanan) }}', 
-                                        '{{ addslashes($item->nomor_kamar) }}', 
-                                        '{{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->format('d F Y') }}', 
-                                        '{{ $item->foto_ktp ? asset('storage/'.$item->foto_ktp) : '' }}'
-                                    )"
-                                        class="inline-flex items-center gap-2 px-5 py-2 bg-[#0f172a] hover:bg-[#F5C542] hover:text-[#0f172a] text-white text-xs font-bold rounded-lg shadow-md transition-all transform active:scale-95">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                        VERIFIKASI
-                                    </button>
+
+                                <td class="p-4">
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-slate-800 text-sm">{{ $item->nama_tahanan }}</span>
+                                        <span class="text-xs text-slate-500 mt-0.5">{{ $item->lokasi_tahanan }}</span>
+                                        <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded w-fit mt-1.5 uppercase tracking-wide">SESI {{ $item->jam_kunjungan }}</span>
+                                    </div>
+                                </td>
+
+                                <td class="p-4">
+                                    <div class="flex flex-col gap-2">
+                                        <div class="text-xs text-slate-600 font-medium">
+                                            Pengikut: <span class="font-bold text-slate-800">{{ $item->jumlah_pengikut }} Orang</span>
+                                        </div>
+                                        <a href="{{ asset('storage/'.$item->foto_ktp) }}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg w-fit transition border border-indigo-100">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                            </svg>
+                                            Cek Foto KTP
+                                        </a>
+                                    </div>
+                                </td>
+
+                                <td class="p-4 text-center">
+                                    <div class="flex justify-center gap-2">
+                                        <form action="{{ url('/petugas/update-status/' . $item->id) }}" method="POST" onsubmit="return confirm('Yakin ingin MENYETUJUI izin kunjungan ini?');" class="inline-block">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="disetujui">
+                                            <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-white p-2 rounded-lg transition shadow-sm" title="Setujui Izin">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                            </button>
+                                        </form>
+
+                                        <button type="button" onclick="document.getElementById('modalTolak-{{ $item->id }}').classList.remove('hidden')" class="bg-rose-500 hover:bg-rose-600 text-white p-2 rounded-lg transition shadow-sm" title="Tolak Izin">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <div id="modalTolak-{{ $item->id }}" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                                        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"></div>
+                                        <div class="fixed inset-0 z-10 overflow-y-auto">
+                                            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                                                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md">
+                                                    <div class="bg-rose-600 px-4 py-3 flex justify-between items-center text-white">
+                                                        <h3 class="text-sm font-bold flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                                            </svg> Tolak Permohonan #REQ-{{ $item->id }}</h3>
+                                                        <button type="button" onclick="document.getElementById('modalTolak-{{ $item->id }}').classList.add('hidden')" class="hover:bg-rose-700 p-1 rounded transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                            </svg></button>
+                                                    </div>
+                                                    <form action="{{ url('/petugas/update-status/' . $item->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="status" value="ditolak">
+                                                        <div class="px-6 py-6">
+                                                            <label class="block text-sm font-bold text-slate-700 mb-2">Alasan Penolakan <span class="text-red-500">*</span></label>
+                                                            <textarea name="alasan" rows="3" class="w-full rounded-xl border-slate-300 focus:ring-rose-500 focus:border-rose-500 text-sm" placeholder="Contoh: KTP tidak jelas / Kuota penuh" required></textarea>
+                                                        </div>
+                                                        <div class="bg-slate-50 px-6 py-4 flex justify-end gap-2 border-t border-slate-100">
+                                                            <button type="button" onclick="document.getElementById('modalTolak-{{ $item->id }}').classList.add('hidden')" class="bg-white border border-slate-300 text-slate-700 font-bold px-4 py-2 rounded-lg text-sm hover:bg-slate-50 transition">Batal</button>
+                                                            <button type="submit" class="bg-rose-600 text-white font-bold px-4 py-2 rounded-lg text-sm hover:bg-rose-700 transition">Kirim Penolakan</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
@@ -129,222 +216,6 @@
                 @endif
             </div>
 
-            <div class="text-center text-xs text-slate-400 mt-8 mb-4">
-                &copy; {{ date('Y') }} Sistem Informasi Pelayanan Rutan - Kejaksaan Negeri Banjarmasin
-            </div>
         </div>
     </div>
-
-    <div id="verifyModal" class="fixed inset-0 z-50 hidden bg-slate-900/95 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl overflow-hidden flex flex-col h-[85vh] animate-scale-up">
-
-            <div class="bg-[#0f172a] px-6 py-4 flex justify-between items-center border-b border-[#F5C542]">
-                <div class="flex items-center gap-3">
-                    <img src="{{ asset('assets/logo-kejari.png') }}" class="h-8 w-8 bg-white/10 rounded-full p-1">
-                    <h2 class="text-lg font-serif font-bold text-white tracking-wide">Formulir Verifikasi Data</h2>
-                </div>
-                <button onclick="closeVerifyModal()" class="text-slate-400 hover:text-white hover:bg-white/10 rounded-full p-1 transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-
-            <div class="flex-1 overflow-y-auto flex flex-col md:flex-row bg-white">
-                <div class="w-full md:w-5/12 bg-slate-100 p-6 flex flex-col items-center justify-center border-r border-slate-200">
-                    <div class="w-full max-w-sm">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Lampiran KTP Asli</span>
-                            <span class="text-[10px] bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-500">Wajib Cek</span>
-                        </div>
-                        <div class="relative bg-white rounded-lg shadow-sm border border-slate-300 overflow-hidden group cursor-zoom-in min-h-[200px] flex items-center justify-center text-center">
-                            <img id="modalKtpImage" src="" class="max-w-full max-h-[400px] object-contain transition-transform duration-300 group-hover:scale-105" alt="KTP">
-                            <div id="noKtpMessage" class="hidden flex flex-col items-center text-slate-400 py-10">
-                                <span class="text-xs font-bold">Tidak Ada Foto Dilampirkan</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="w-full md:w-7/12 p-8 overflow-y-auto">
-                    <div class="space-y-8">
-                        <div>
-                            <h3 class="text-xs font-bold text-[#F5C542] bg-[#0f172a] px-2 py-1 inline-block rounded mb-4 uppercase tracking-widest">A. Data Pengunjung</h3>
-                            <div class="grid grid-cols-2 gap-6">
-                                <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Nama Lengkap</label>
-                                    <div id="modalVisitorName" class="text-lg font-bold text-slate-800 uppercase">...</div>
-                                </div>
-                                <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Jumlah Pengikut</label>
-                                    <div id="modalVisitorCount" class="text-lg font-bold text-slate-800">...</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h3 class="text-xs font-bold text-[#F5C542] bg-[#0f172a] px-2 py-1 inline-block rounded mb-4 uppercase tracking-widest">B. Tujuan Kunjungan</h3>
-                            <div class="grid grid-cols-2 gap-6 mb-4">
-                                <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Nama Tahanan</label>
-                                    <div id="modalInmateName" class="text-lg font-bold text-slate-800 uppercase">...</div>
-                                </div>
-                                <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Lokasi Kamar</label>
-                                    <div id="modalInmateRoom" class="text-lg font-bold text-slate-800">...</div>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2">Keperluan</label>
-                                <div id="modalPurpose" class="p-4 bg-yellow-50 text-slate-700 italic rounded-lg border border-yellow-100 text-sm border-l-4 border-l-[#F5C542]">...</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 border-t border-slate-200 flex justify-end gap-3 z-10 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
-                <button onclick="document.getElementById('rejectModal').classList.remove('hidden')" class="px-5 py-3 border-2 border-red-100 text-red-600 font-bold rounded-lg text-sm hover:bg-red-50 hover:border-red-200 transition flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                    TOLAK BERKAS
-                </button>
-
-                <form id="modalApproveForm" action="" method="POST">
-                    @csrf @method('PUT')
-                    <input type="hidden" name="status" value="disetujui">
-                    <button type="submit" class="px-8 py-3 bg-[#0f172a] text-white font-bold rounded-lg text-sm hover:bg-[#F5C542] hover:text-[#0f172a] transition shadow-lg flex items-center gap-2" onclick="return confirm('Apakah data sudah diverifikasi dan sesuai?')">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        DATA VALID & SETUJUI
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div id="rejectModal" class="fixed inset-0 z-[60] hidden bg-black/80 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 border-t-4 border-red-500 animate-scale-up">
-            <div class="flex items-center gap-3 mb-4 text-red-600">
-                <div class="bg-red-100 p-2 rounded-full">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                </div>
-                <h3 class="font-bold text-slate-800 text-lg">Tolak Permohonan?</h3>
-            </div>
-
-            <form id="rejectForm" action="" method="POST">
-                @csrf @method('PUT')
-                <input type="hidden" name="status" value="ditolak">
-
-                <div class="mb-3">
-                    <label class="text-xs font-bold text-slate-500 uppercase block mb-2">Pilih Alasan Cepat</label>
-                    <select id="quickReason" onchange="updateReason(this)" class="w-full border-slate-300 rounded-lg text-sm focus:ring-red-500 focus:border-red-500 text-slate-700">
-                        <option value="">-- Pilih Salah Satu --</option>
-
-                        <optgroup label="Masalah Dokumen">
-                            <option value="Foto KTP/Identitas buram atau tidak terbaca. Mohon upload ulang.">Foto KTP Buram/Tidak Jelas</option>
-                            <option value="Data inputan nama/NIK tidak sesuai dengan foto KTP yang dilampirkan.">Data Tidak Sesuai KTP</option>
-                            <option value="Kartu Keluarga (KK) belum dilampirkan sebagai syarat hubungan keluarga.">KK Tidak Dilampirkan</option>
-                        </optgroup>
-
-                        <optgroup label="Masalah Tahanan">
-                            <option value="Tahanan sedang menjalani sidang di Pengadilan Negeri.">Tahanan Sedang Sidang</option>
-                            <option value="Tahanan sedang sakit/isolasi medis.">Tahanan Sakit/Isolasi</option>
-                            <option value="Tahanan sedang dipinjam (Bon) oleh penyidik.">Tahanan Di-Bon Penyidik</option>
-                            <option value="Tahanan sedang menjalani hukuman disiplin (Register F).">Tahanan Kena Sanksi (Reg F)</option>
-                        </optgroup>
-
-                        <optgroup label="Lainnya">
-                            <option value="Kuota kunjungan untuk tahanan ini sudah habis minggu ini.">Kuota Habis</option>
-                            <option value="manual">Lainnya (Ketik Sendiri)</option>
-                        </optgroup>
-                    </select>
-                </div>
-
-                <div class="mb-4">
-                    <label class="text-xs font-bold text-slate-500 uppercase block mb-2">Detail Keterangan</label>
-                    <textarea name="keterangan_petugas" id="reasonText" class="w-full border-slate-300 rounded-lg text-sm focus:ring-red-500 focus:border-red-500 min-h-[100px]" placeholder="Alasan penolakan akan muncul di sini..." required></textarea>
-                    <p class="text-[10px] text-slate-400 mt-1 italic">*Anda tetap bisa mengedit teks di atas.</p>
-                </div>
-
-                <div class="flex justify-end gap-2">
-                    <button type="button" onclick="document.getElementById('rejectModal').classList.add('hidden')" class="px-4 py-2 text-sm font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition">Batal</button>
-                    <button type="submit" class="px-4 py-2 text-sm font-bold bg-red-600 hover:bg-red-700 text-white rounded-lg shadow transition">Konfirmasi Tolak</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        // Fitur Pencarian Tabel
-        function searchTable() {
-            let input = document.getElementById("searchInput");
-            let filter = input.value.toUpperCase();
-            let table = document.getElementById("dataTable");
-            let tr = table.getElementsByTagName("tr");
-            for (let i = 1; i < tr.length; i++) {
-                let td = tr[i].getElementsByTagName("td")[1];
-                if (td) {
-                    let txtValue = td.textContent || td.innerText;
-                    tr[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? "" : "none";
-                }
-            }
-        }
-
-        // Buka Modal Detail & Approve
-        function openVerifyModal(id, vName, vCount, vPurpose, iName, iRoom, date, ktpSrc) {
-            document.getElementById('modalVisitorName').innerText = vName;
-            document.getElementById('modalVisitorCount').innerText = vCount + " Orang";
-            document.getElementById('modalPurpose').innerText = '"' + vPurpose + '"';
-            document.getElementById('modalInmateName').innerText = iName;
-            document.getElementById('modalInmateRoom').innerText = iRoom;
-
-            let img = document.getElementById('modalKtpImage');
-            let noImg = document.getElementById('noKtpMessage');
-
-            if (ktpSrc) {
-                img.src = ktpSrc;
-                img.classList.remove('hidden');
-                noImg.classList.add('hidden');
-            } else {
-                img.classList.add('hidden');
-                noImg.classList.remove('hidden');
-            }
-
-            // Update URL Action untuk Form Approve & Reject
-            let url = "{{ route('petugas.update', ':id') }}".replace(':id', id);
-            document.getElementById('modalApproveForm').action = url;
-            document.getElementById('rejectForm').action = url;
-
-            // Reset Form Tolak saat buka modal baru
-            document.getElementById('quickReason').value = "";
-            document.getElementById('reasonText').value = "";
-
-            document.getElementById('verifyModal').classList.remove('hidden');
-        }
-
-        function closeVerifyModal() {
-            document.getElementById('verifyModal').classList.add('hidden');
-        }
-
-        // LOGIKA OTOMATIS COPY DARI DROPDOWN KE TEXTAREA
-        function updateReason(selectElement) {
-            var textarea = document.getElementById('reasonText');
-            var selectedValue = selectElement.value;
-
-            if (selectedValue === 'manual') {
-                textarea.value = "";
-                textarea.placeholder = "Silakan ketik alasan spesifik di sini...";
-                textarea.focus();
-            } else if (selectedValue !== "") {
-                textarea.value = selectedValue;
-            } else {
-                textarea.value = "";
-            }
-        }
-    </script>
 </x-app-layout>

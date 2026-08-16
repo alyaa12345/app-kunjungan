@@ -38,15 +38,33 @@
 
             @if(session('success'))
             <div class="mb-8 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 p-4 rounded-r shadow-sm flex items-center gap-3 animate-fade-in-down">
-                <div class="bg-emerald-100 p-2 rounded-full"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="bg-emerald-100 p-2 rounded-full">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg></div>
+                    </svg>
+                </div>
                 <div>
                     <h4 class="font-bold text-sm">Berhasil!</h4>
                     <p class="text-xs">{{ session('success') }}</p>
                 </div>
             </div>
             @endif
+
+            <!-- TAMBAHAN KODE: NOTIFIKASI ERROR / DITOLAK -->
+            @if(session('error'))
+            <div class="mb-8 bg-red-50 border-l-4 border-red-500 text-red-800 p-4 rounded-r shadow-sm flex items-center gap-3 animate-fade-in-down">
+                <div class="bg-red-100 p-2 rounded-full">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm">Akses Ditolak!</h4>
+                    <p class="text-xs">{{ session('error') }}</p>
+                </div>
+            </div>
+            @endif
+            <!-- AKHIR TAMBAHAN KODE -->
 
             <div class="flex items-center justify-between mb-6">
                 <div>
@@ -56,7 +74,6 @@
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-
                 <div onclick="document.getElementById('modalTitipan').classList.remove('hidden')" class="group bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center text-center relative overflow-hidden cursor-pointer">
                     <div class="absolute top-2 right-2 bg-red-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full animate-pulse shadow-sm">BARU</div>
                     <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors shadow-sm">
@@ -97,13 +114,15 @@
                     <h4 class="font-bold text-slate-700 group-hover:text-orange-600">Tata Tertib</h4>
                     <p class="text-[10px] text-slate-400 mt-1">Info Kunjungan</p>
                 </div>
-
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            {{-- ========================================== --}}
+            {{-- KOTAK DAFTAR TIKET KUNJUNGAN --}}
+            {{-- ========================================== --}}
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
                 <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                     <div>
-                        <h3 class="font-bold text-[#0f172a]">Tiket Permohonan Saya</h3>
+                        <h3 class="font-bold text-[#0f172a]">Tiket Kunjungan Saya</h3>
                         <p class="text-xs text-slate-500">Daftar pengajuan terbaru</p>
                     </div>
                     <a href="{{ route('masyarakat.create') }}" class="px-5 py-2.5 bg-[#F5C542] hover:bg-yellow-400 text-[#0f172a] text-xs font-bold rounded-lg shadow-md transition flex items-center gap-2">
@@ -150,19 +169,98 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="{{ route('masyarakat.show', $item->id) }}" class="text-xs font-bold text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-4 py-2 rounded-lg transition">Lihat Detail</a>
+                        
+                        <!-- Penambahan Group Tombol Aksi Kunjungan -->
+                        <div class="flex items-center gap-2">
+                            <a href="{{ route('masyarakat.edit', $item->id) }}" class="text-xs font-bold text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50 px-4 py-2 rounded-lg transition border border-transparent hover:border-yellow-200">Edit</a>
+                            <a href="{{ route('masyarakat.show', $item->id) }}" class="text-xs font-bold text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-4 py-2 rounded-lg transition border border-transparent hover:border-blue-200">Lihat Detail</a>
+                        </div>
                     </div>
                     @endforeach
                 </div>
                 @endif
             </div>
 
-            <div class="text-center text-slate-400 text-xs py-10">
+            {{-- ========================================== --}}
+            {{-- KOTAK DAFTAR TIKET TITIPAN BARANG --}}
+            {{-- ========================================== --}}
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-10">
+                <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <div>
+                        <h3 class="font-bold text-[#0f172a]">Tiket Titipan Barang Saya</h3>
+                        <p class="text-xs text-slate-500">Daftar pengajuan titipan barang terbaru.</p>
+                    </div>
+                    <button type="button" onclick="document.getElementById('modalTitipan').classList.remove('hidden')" class="px-5 py-2.5 bg-[#F5C542] hover:bg-yellow-400 text-[#0f172a] text-xs font-bold rounded-lg shadow-md transition flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Buat Baru
+                    </button>
+                </div>
+
+                <div class="p-4 space-y-4">
+                    @forelse($titipans as $item)
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-slate-100 hover:border-slate-200 transition-all hover:shadow-sm gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-slate-900 text-white w-14 h-14 rounded-xl flex flex-col items-center justify-center flex-shrink-0 shadow-sm">
+                                <span class="text-[10px] font-bold uppercase tracking-wider opacity-80">{{ $item->created_at->format('M') }}</span>
+                                <span class="text-xl font-black leading-none">{{ $item->created_at->format('d') }}</span>
+                            </div>
+
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-xs font-bold text-slate-400">#TTP-{{ $item->id }}</span>
+
+                                    @if(in_array(strtolower($item->status), ['diajukan', 'menunggu']))
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-yellow-100 text-yellow-700">MENUNGGU</span>
+                                    @elseif(in_array(strtolower($item->status), ['disetujui', 'diterima', 'selesai']))
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700">DISETUJUI</span>
+                                    @else
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">DITOLAK</span>
+                                    @endif
+                                </div>
+                                <h4 class="font-bold text-slate-800">{{ $item->nama_tahanan }}</h4>
+                                <p class="text-xs text-slate-500 font-medium mt-0.5">{{ $item->jenis_titipan }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Penambahan Group Tombol Aksi Titipan Barang -->
+                        <div class="flex flex-wrap items-center sm:justify-end gap-2">
+                            <a href="{{ route('masyarakat.titipan.edit', $item->id) }}" class="text-xs font-bold bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-50 transition shadow-sm w-full sm:w-auto text-center flex items-center justify-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                </svg>
+                                Edit
+                            </a>
+
+                            @if(in_array(strtolower($item->status), ['disetujui', 'diterima', 'selesai']))
+                            <a href="{{ route('masyarakat.titipan.cetak', $item->id) }}" target="_blank" class="text-xs font-bold bg-[#0f172a] text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition flex items-center gap-2 shadow-sm w-full sm:w-auto justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                                </svg>
+                                Cetak Surat Label
+                            </a>
+                            @else
+                            <span class="text-xs font-bold text-slate-300 italic w-full sm:w-auto text-center sm:text-right px-2">Surat belum tersedia</span>
+                            @endif
+                        </div>
+                    </div>
+                    @empty
+                    <div class="text-center py-8 text-slate-400 text-sm border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 m-4">
+                        Belum ada pengajuan titipan barang.
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+
+            <!-- FOOTER BAWAH -->
+            <div class="text-center text-slate-400 text-xs pb-10">
                 &copy; {{ date('Y') }} Kejaksaan Negeri Banjarmasin
             </div>
-        </div>
-    </div>
 
+    {{-- ========================================== --}}
+    {{-- MODAL TITIPAN BARANG --}}
+    {{-- ========================================== --}}
     <div id="modalTitipan" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" onclick="document.getElementById('modalTitipan').classList.add('hidden')"></div>
         <div class="fixed inset-0 z-10 overflow-y-auto">
@@ -186,7 +284,6 @@
                     <form action="{{ route('titipan.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="px-6 py-6 bg-slate-50">
-
                             <div class="bg-white p-4 rounded-xl border border-slate-200 mb-6 flex items-center gap-4">
                                 <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">{{ substr(Auth::user()->name, 0, 1) }}</div>
                                 <div>
@@ -195,22 +292,33 @@
                                 </div>
                             </div>
 
+                            <div class="mb-5 relative">
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Nomor Tahanan <span class="text-red-500">*</span></label>
+                                <input type="text" id="inputNoTahananTitipan" name="no_tahanan" class="w-full rounded-xl border-slate-300 focus:ring-[#0f172a] focus:border-[#0f172a] text-sm transition-colors" placeholder="Ketik Nomor Lengkap (Contoh: T-6578)" autocomplete="off" onkeyup="cariTahananTitipan(this.value)" required>
+                                <p id="pesanValidasiTitipan" class="text-[11px] mt-1 font-bold h-4 text-blue-500">Ketik nomor tahanan secara lengkap untuk mencari.</p>
+                            </div>
+
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                                 <div>
                                     <label class="block text-sm font-bold text-slate-700 mb-2">Nama Tahanan <span class="text-red-500">*</span></label>
-                                    <input type="text" name="nama_tahanan" class="w-full rounded-xl border-slate-300 focus:ring-[#0f172a] focus:border-[#0f172a] text-sm" placeholder="Nama Lengkap" required>
+                                    <input type="text" id="nama_tahanan_titipan" name="nama_tahanan" class="w-full rounded-xl border-slate-300 bg-slate-50 text-slate-500 focus:ring-0 shadow-sm transition-colors pointer-events-none text-sm" placeholder="Akan terisi otomatis..." required readonly tabindex="-1">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-bold text-slate-700 mb-2">Jenis Barang <span class="text-red-500">*</span></label>
-                                    <select name="jenis_titipan" class="w-full rounded-xl border-slate-300 focus:ring-[#0f172a] focus:border-[#0f172a] text-sm" required>
-                                        <option value="">-- Pilih --</option>
-                                        <option value="Makanan">Makanan/Minuman</option>
-                                        <option value="Pakaian">Pakaian/Baju</option>
-                                        <option value="Uang">Uang Tunai</option>
-                                        <option value="Obat-obatan">Obat-obatan</option>
-                                        <option value="Lainnya">Lainnya</option>
-                                    </select>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Lokasi Penahanan</label>
+                                    <input type="text" id="lokasi_tahanan_titipan" name="lokasi_tahanan" class="w-full rounded-xl border-slate-300 bg-slate-50 text-slate-500 focus:ring-0 shadow-sm transition-colors pointer-events-none text-sm" placeholder="Akan terisi otomatis..." readonly tabindex="-1">
                                 </div>
+                            </div>
+
+                            <div class="mb-5">
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Jenis Barang <span class="text-red-500">*</span></label>
+                                <select name="jenis_titipan" class="w-full rounded-xl border-slate-300 focus:ring-[#0f172a] focus:border-[#0f172a] text-sm" required>
+                                    <option value="">-- Pilih --</option>
+                                    <option value="Makanan">Makanan/Minuman</option>
+                                    <option value="Pakaian">Pakaian/Baju</option>
+                                    <option value="Uang">Uang Tunai</option>
+                                    <option value="Obat-obatan">Obat-obatan</option>
+                                    <option value="Lainnya">Lainnya</option>
+                                </select>
                             </div>
 
                             <div class="mb-5">
@@ -234,6 +342,9 @@
         </div>
     </div>
 
+    {{-- ========================================== --}}
+    {{-- INFO MODAL TATA TERTIB --}}
+    {{-- ========================================== --}}
     <div id="infoModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm transition-opacity" onclick="document.getElementById('infoModal').classList.add('hidden')"></div>
         <div class="fixed inset-0 z-10 overflow-y-auto">
@@ -305,4 +416,63 @@
         </div>
     </div>
 
+    {{-- ========================================== --}}
+    {{-- SCRIPT PENCARIAN TAHANAN --}}
+    {{-- ========================================== --}}
+    <script>
+        const activePrisonersTitipan = @json($tahanans ?? []);
+
+        function cariTahananTitipan(keyword) {
+            let pesan = document.getElementById('pesanValidasiTitipan');
+            let inputNo = document.getElementById('inputNoTahananTitipan');
+            let namaInput = document.getElementById('nama_tahanan_titipan');
+            let lokasiInput = document.getElementById('lokasi_tahanan_titipan');
+
+            inputNo.classList.remove('border-green-500', 'ring-green-500', 'border-red-500');
+
+            if (keyword.trim() === "") {
+                pesan.innerHTML = "Ketik nomor tahanan secara lengkap untuk mencari.";
+                pesan.className = "text-[11px] mt-1 text-blue-500 font-bold h-4";
+                if (namaInput) {
+                    namaInput.value = "";
+                    namaInput.classList.remove('bg-green-100', 'font-bold', 'text-green-800');
+                }
+                if (lokasiInput) {
+                    lokasiInput.value = "";
+                    lokasiInput.classList.remove('bg-green-100', 'font-bold', 'text-green-800');
+                }
+                return;
+            }
+
+            let match = activePrisonersTitipan.find(t =>
+                t.no_tahanan && t.no_tahanan.toLowerCase() === keyword.toLowerCase().trim()
+            );
+
+            if (match) {
+                pesan.innerHTML = "✅ Nomor Ditemukan (Data Terisi)";
+                pesan.className = "text-[11px] mt-1 text-green-600 font-bold h-4";
+                inputNo.classList.add('border-green-500', 'ring-green-500');
+                if (namaInput && match.nama_tahanan) {
+                    namaInput.value = match.nama_tahanan;
+                    namaInput.classList.add('bg-green-100', 'font-bold', 'text-green-800');
+                }
+                if (lokasiInput && match.lokasi_tahanan) {
+                    lokasiInput.value = match.lokasi_tahanan;
+                    lokasiInput.classList.add('bg-green-100', 'font-bold', 'text-green-800');
+                }
+            } else {
+                pesan.innerHTML = "❌ Data tidak ditemukan. Pastikan ketik lengkap!";
+                pesan.className = "text-[11px] mt-1 text-red-600 font-bold h-4";
+                inputNo.classList.add('border-red-500');
+                if (namaInput) {
+                    namaInput.value = "";
+                    namaInput.classList.remove('bg-green-100', 'font-bold', 'text-green-800');
+                }
+                if (lokasiInput) {
+                    lokasiInput.value = "";
+                    lokasiInput.classList.remove('bg-green-100', 'font-bold', 'text-green-800');
+                }
+            }
+        }
+    </script>
 </x-app-layout>

@@ -9,17 +9,48 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('tahanans', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_lengkap');
-            $table->string('nama_bin'); // Nama Ayah (Kunci Pencarian)
-            $table->string('nomor_registrasi')->unique(); // No. Reg Tahanan
-            $table->string('blok_kamar');
-            $table->string('kasus');
-            $table->integer('jatah_kunjungan_mingguan')->default(1); // Misal: 1x seminggu
-            $table->enum('status_tahanan', ['normal', 'isolasi', 'sakit'])->default('normal');
+
+            // IDENTITAS UTAMA
+            $table->string('nama_tahanan');
+
+            // ---> INI YANG BARU KITA TAMBAHKAN <---
+            $table->string('no_tahanan')->nullable();
+
+            // PENTING: unique() mencegah input nomor register ganda
+            $table->string('no_register')->unique();
+            $table->enum('jenis_kelamin', ['L', 'P']);
+
+            // IDENTITAS PELENGKAP (Boleh Kosong/Nullable)
+            $table->string('tempat_lahir')->nullable();
+            $table->date('tanggal_lahir')->nullable();
+            $table->string('agama')->nullable();
+            $table->string('pekerjaan')->nullable();
+            $table->text('alamat')->nullable();
+
+            // DATA HUKUM (Wajib Isi)
+            // Contoh: Pasal 363 KUHP
+            $table->string('pasal');
+
+            // LOKASI (Pilihan Tetap/Enum biar Admin gak typo)
+            $table->enum('lokasi_tahanan', [
+                'Lapas Teluk Dalam',
+                'LPP Martapura',   // Lapas Perempuan
+                'LPKA Martapura',  // Lapas Anak
+                'Rutan Polresta',
+                'Lainnya'
+            ]);
+
+            $table->string('foto')->nullable();
+
+            // STATUS (Logika Tampil/Hilang di Aplikasi Pengunjung)
+            // Kalau 'Aktif' -> Muncul di Pencarian
+            // Kalau 'Bebas' -> Hilang
+            $table->enum('status', ['Aktif', 'Non-Aktif', 'Bebas', 'Pindah'])->default('Aktif');
+
             $table->timestamps();
         });
     }
